@@ -4,7 +4,7 @@ A console-based backend system for managing digital identities in a federated ec
 
 ## Architecture
 
-Clean/Hexagonal Architecture with 4 layers:
+Layered Architecture - 4 Layers:
 - **Domain Layer**: Core business logic and entities
 - **Application Layer**: Use cases and workflows
 - **Infrastructure Layer**: Technical implementations
