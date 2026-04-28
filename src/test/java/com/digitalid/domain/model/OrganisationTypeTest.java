@@ -20,6 +20,6 @@ class OrganisationTypeTest {
 
     @Test
     void fineDiningDetails() {
-        assertEquals("Le Gourmet Restaurant Group", OrganisationType.FINE_DINING.getDisplayName());
+        assertEquals("Le Gourmet", OrganisationType.FINE_DINING.getDisplayName());
     }
 }
