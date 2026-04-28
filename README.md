@@ -1,13 +1,13 @@
-# Digital ID Management System
+# Food Service Digital ID Management System
 
-A console-based backend system for managing digital identities in a federated ecosystem.
+A console-based backend system for managing digital worker identities and food safety certifications across a federated ecosystem of organisations.
 
 ## Architecture
 
-Layered Architecture - 4 Layers:
+Layered Architecture with Ports and Adapters - 4 Layers:
 - **Domain Layer**: Core business logic and entities
-- **Application Layer**: Use cases and workflows
-- **Infrastructure Layer**: Technical implementations
+- **Application Layer**: Use cases, workflows, and port interfaces
+- **Infrastructure Layer**: Technical implementations (adapters)
 - **Presentation Layer**: Console interface
 
 ## Project Structure
