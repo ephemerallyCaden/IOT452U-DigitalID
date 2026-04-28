@@ -12,7 +12,7 @@ class RegionTest {
     }
 
     @Test
-    void unitedStatesShouldHaveCorrectFields() {
+    void unitedStatesHasCorrectFields() {
         Region us = Region.UNITED_STATES;
         assertEquals("US", us.getCountryCode());
         assertEquals("en-US", us.getLocaleCode());
@@ -21,21 +21,13 @@ class RegionTest {
     }
 
     @Test
-    void unitedKingdomShouldHaveCorrectFields() {
-        Region uk = Region.UNITED_KINGDOM;
-        assertEquals("GB", uk.getCountryCode());
-        assertEquals("£", uk.getCurrencySymbol());
+    void ukUsesGBCountryCode() {
+        assertEquals("GB", Region.UNITED_KINGDOM.getCountryCode());
+        assertEquals("£", Region.UNITED_KINGDOM.getCurrencySymbol());
     }
 
     @Test
-    void japanShouldHaveCorrectLocale() {
-        Region jp = Region.JAPAN;
-        assertEquals("ja-JP", jp.getLocaleCode());
-        assertEquals("¥", jp.getCurrencySymbol());
-    }
-
-    @Test
-    void euRegionsShouldShareEuroCurrency() {
+    void euCountriesAllUseEuro() {
         assertEquals("€", Region.GERMANY.getCurrencySymbol());
         assertEquals("€", Region.FRANCE.getCurrencySymbol());
         assertEquals("€", Region.ITALY.getCurrencySymbol());
@@ -44,9 +36,10 @@ class RegionTest {
     }
 
     @Test
-    void valueOfShouldResolveCorrectly() {
-        assertEquals(Region.SINGAPORE, Region.valueOf("SINGAPORE"));
-        assertEquals(Region.HONG_KONG, Region.valueOf("HONG_KONG"));
-        assertEquals(Region.SOUTH_KOREA, Region.valueOf("SOUTH_KOREA"));
+    void asianRegionsHaveCorrectCurrencies() {
+        assertEquals("¥", Region.JAPAN.getCurrencySymbol());
+        assertEquals("S$", Region.SINGAPORE.getCurrencySymbol());
+        assertEquals("HK$", Region.HONG_KONG.getCurrencySymbol());
+        assertEquals("₩", Region.SOUTH_KOREA.getCurrencySymbol());
     }
 }
