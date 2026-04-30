@@ -48,9 +48,9 @@ For workers, it means a single digital identity that follows them across employe
 
 Layered architecture with ports and adapters. Four layers (presentation, application, domain, infrastructure) with port interfaces at the application-infrastructure boundary for testability. Full details in `doc-technical.md`.
 
-### Storage: SQLite Database
+### Storage: JSON File
 
-SQLite made sense here — it's a single file (`digitalid.db`), needs no server configuration, and data persists between restarts. Assessors don't need to install anything to run the project. It's production-capable for this scale.
+Data is persisted to a single JSON file (`digitalid.json`). I initially considered SQLite but decided it was overkill for the scale of this project. There's no need for SQL queries or relational joins when the dataset is small enough to load into memory. JSON keeps things simple: the file is human-readable, easy to inspect during development, and doesn't require any additional dependencies beyond what Java provides.
 
 ---
 
@@ -60,7 +60,7 @@ SQLite made sense here — it's a single file (`digitalid.db`), needs no server 
 
 **Role:** Issues and manages digital worker IDs and certifications
 
-Does everything — creates worker IDs, records certifications (internationally), manages status changes, tracks expirations, generates reports, maintains the audit trail. Essentially the only entity that can write to the system.
+Does everything: creates worker IDs, records certifications (internationally), manages status changes, tracks expirations, generates reports, maintains the audit trail. Essentially the only entity that can write to the system.
 
 
 ### 2. Financial Services: Payroll Financial
@@ -87,7 +87,7 @@ High turnover, rapid hiring, simple requirements. They just need to know "is thi
 
 **Role:** Upscale restaurant requiring detailed verification
 
-These places care about certification levels — they want to see ServSafe Manager, allergen training, full history. Hiring decisions depend on it.
+Fine dining restaurants care about certification levels. They want to see ServSafe Manager, allergen training, and full history as the role is much more specialised and requries more skill.
 
 **Tools Available:** 4 tools (core + certification history + attributes verification)
 
@@ -112,7 +112,7 @@ Decision: APPROVED
 
 **Role:** Food delivery platform with driver-specific requirements
 
-Needs to check conditions beyond just "is the ID active" — background clearance, food handler permit, driver authorisation, active restrictions.
+Needs to check ID, background clearance, food handler permit, driver authorisation, and active restrictions.
 
 **Tools Available:** 3 tools (core + conditions)
 
@@ -122,7 +122,7 @@ Needs to check conditions beyond just "is the ID active" — background clearanc
 
 **Role:** Coffee shop with mostly part-time staff
 
-Same as fast food — simple verification needs.
+Just simple verification required
 
 **Tools Available:** 2 tools (core: view + basic verification)
 
@@ -132,7 +132,7 @@ Same as fast food — simple verification needs.
 
 **Role:** Mobile food vendor credential management
 
-Street vendors have specific requirements that other orgs don't deal with — mobile food unit permits, annual health inspections, commissary agreements, fire safety for propane equipment.
+Street vendors have specific requirements unique to their orgs: mobile food unit permits, annual health inspections, commissary agreements, and fire safety for propane equipment.
 
 **Tools Available:** 3 tools (core + permits)
 
@@ -188,7 +188,7 @@ The system provides functions organised into categories. Each organisation type 
 - Mark as suspended, mark as expired (or automatic at expiration date), reactivate
 
 **(optional) BULK_IMPORT_CERTIFICATIONS**
-- Import multiple certifications from file — might not implement this, depends on time
+- Import multiple certifications from file
 
 ### SPECIAL VERIFICATION Tools
 
@@ -210,37 +210,37 @@ The system provides functions organised into categories. Each organisation type 
 
 ### REPORTING & ANALYTICS Tools (Central Authority Only)
 
-**VIEW_AUDIT_LOG** — full audit trail, filterable by worker/org/date range
+**VIEW_AUDIT_LOG**: full audit trail, filterable by worker/org/date range
 
-**GENERATE_COMPLIANCE_REPORT** — workers by status across regions, certification compliance %, export to PDF/CSV
+**GENERATE_COMPLIANCE_REPORT**: workers by status across regions, certification compliance %, export to PDF/CSV
 
-**CHECK_EXPIRING_CERTS** — certifications expiring within 30/60/90 days, filterable by region or cert type
+**CHECK_EXPIRING_CERTS**: certifications expiring within 30/60/90 days, filterable by region or cert type
 
-**GENERATE_REGIONAL_REPORT** — compliance stats, worker distribution, cert types by region
+**GENERATE_REGIONAL_REPORT**: compliance stats, worker distribution, cert types by region
 
-**VIEW_ORGANISATION_ACTIVITY** — verification requests by org, usage patterns
+**VIEW_ORGANISATION_ACTIVITY**: verification requests by org, usage patterns
 
 ### SEARCH & QUERY Tools (Central Authority Only)
 
-**SEARCH_WORKERS** — by name, email, or worker ID. Filter by region, status, cert type.
+**SEARCH_WORKERS**: by name, email, or worker ID. Filter by region, status, cert type.
 
-**SEARCH_BY_CERTIFICATION** — find all workers with a specific cert type, filter by validity
+**SEARCH_BY_CERTIFICATION**: find all workers with a specific cert type, filter by validity
 
-**SEARCH_BY_EXPIRATION** — workers with expiring certs, group by type or date range
+**SEARCH_BY_EXPIRATION**: workers with expiring certs, group by type or date range
 
 ### BATCH OPERATIONS Tools (Central Authority Only)
 
-**BULK_STATUS_UPDATE** — update multiple workers at once (regulatory actions), requires justification
+**BULK_STATUS_UPDATE**: update multiple workers at once (regulatory actions), requires justification
 
-**BULK_CERTIFICATION_CHECK** — validity check across multiple workers, summary report
+**BULK_CERTIFICATION_CHECK**: validity check across multiple workers, summary report
 
-**EXPORT_WORKER_DATA** — backup/reporting export, CSV or JSON, filterable
+**EXPORT_WORKER_DATA**: backup/reporting export, CSV or JSON, filterable
 
 ### NOTIFICATION Tools (Central Authority Only)
 
-**SEND_RENEWAL_REMINDER** — email/SMS for expiring certifications, customisable schedule (30, 14, 7 days). System can run these autonomously.
+**SEND_RENEWAL_REMINDER**: email/SMS for expiring certifications, customisable schedule (30, 14, 7 days). System can run these autonomously.
 
-**SEND_STATUS_NOTIFICATION** — notify on status changes, include reasons. Can trigger automatically on any status change. Potentially include appeal info (?)
+**SEND_STATUS_NOTIFICATION**: notify on status changes, include reasons. Can trigger automatically on any status change. Potentially include appeal info (?)
 
 
 ---
@@ -252,16 +252,16 @@ The system provides functions organised into categories. Each organisation type 
 The system supports food safety certifications across 12 regions. Here's what's relevant for each:
 
 #### United States
-- **Food Handler Certificate** — mandatory in 42+ states. Validity varies: California 3 years, Texas 2 years, Illinois 3 years. Generally 2-5 years.
-- **ServSafe Manager (CFPM)** — at least one required per establishment. 5-year validity. ANSI-accredited exam.
-- **Mobile Vendor Requirements** — varies wildly. NYC needs a licence + unit permit + food protection cert. California is an annual health permit. Texas needs a food handler card + CFPM on-site.
+- **Food Handler Certificate**: mandatory in 42+ states. Validity varies: California 3 years, Texas 2 years, Illinois 3 years. Generally 2-5 years.
+- **ServSafe Manager (CFPM)**: at least one required per establishment. 5-year validity. ANSI-accredited exam.
+- **Mobile Vendor Requirements**: varies wildly. NYC needs a licence + unit permit + food protection cert. California is an annual health permit. Texas needs a food handler card + CFPM on-site.
 
 #### United Kingdom
-- **Level 2 Food Safety and Hygiene** — required for all food handlers. 3-year recommended renewal. Issued by CIEH or Highfield, overseen by FSA.
-- **Level 3 Food Safety (Supervising)** — for supervisors/managers. Also 3 years.
+- **Level 2 Food Safety and Hygiene**: required for all food handlers. 3-year recommended renewal. Issued by CIEH or Highfield, overseen by FSA.
+- **Level 3 Food Safety (Supervising)**: for supervisors/managers. Also 3 years.
 
 #### European Union
-- **HACCP Training (EU Regulation 852/2004)** — required across all EU states. No official expiration but refresher recommended every 2-3 years.
+- **HACCP Training (EU Regulation 852/2004)**: required across all EU states. No official expiration but refresher recommended every 2-3 years.
 - Country-specific variations: Germany has Gesundheitszeugnis (lifetime), France has Formation HACCP (3 years), Italy has Attestato HACCP (2-3 years), Spain has Certificado Manipulador (4 years).
 
 #### Asia
@@ -288,24 +288,24 @@ The system supports food safety certifications across 12 regions. Here's what's 
 Separate from certifications, the system also tracks whether a worker has the legal right to work in their operating region. This is a verification that all consuming organisations can check.
 
 #### United Kingdom
-- **Right to Work check** — employer must verify before employment starts (no grace period)
+- **Right to Work check**: employer must verify before employment starts (no grace period)
 - Documents: UK/Irish passport, Biometric Residence Permit (BRP), or Home Office share code
 - Indefinite for UK/Irish citizens and those with settled status
-- Time-limited for visa holders — system tracks expiry and flags when reverification needed
+- Time-limited for visa holders: system tracks expiry and flags when reverification needed
 
 #### European Union
-- **Work permit verification** — varies by country, but non-EU nationals need a valid residence/work permit
+- **Work permit verification**: varies by country, but non-EU nationals need a valid residence/work permit
 - EU/EEA citizens have free movement rights (indefinite)
 - Third-country nationals need permits with expiry dates tracked by the system
 
 #### United States
-- **Employment eligibility verification** — must be completed within 3 business days of hire
+- **Employment eligibility verification**: must be completed within 3 business days of hire
 - Documents: passport, permanent resident card, employment authorisation document, etc.
 - Permanent residents have indefinite authorisation
 - Temporary work visas require reverification before expiry
 
 #### Singapore
-- **Work pass verification** — Employment Pass, S Pass, or Work Permit required for non-citizens
+- **Work pass verification**: Employment Pass, S Pass, or Work Permit required for non-citizens
 - Citizens and permanent residents have indefinite right to work
 
 #### General
@@ -382,7 +382,7 @@ System checks:
 ## Technology Stack
 
 - **Language:** Java 17
-- **Database:** SQLite (via xerial sqlite-jdbc)
+- **Persistence:** JSON file (via Gson)
 - **Build:** Maven
 - **Testing:** JUnit 5 + Mockito
 
@@ -393,7 +393,7 @@ System checks:
 ### What the System Enforces
 
 **Status rules:**
-- Revoked workers can't be updated or reactivated — it's permanent
+- Revoked workers can't be updated or reactivated: it's permanent
 - Suspended workers can be reactivated by central authority
 - All status changes get an audit log entry
 
@@ -431,8 +431,8 @@ When demonstrating the system, I'll focus on these key tools:
 7. Multi-region worker creation
 
 **For Questions:**
-- Tool access control — how organisations get different tools
-- Regional requirements — how certification types vary by region
+- Tool access control: how organisations get different tools
+- Regional requirements: how certification types vary by region
 
 ---
 

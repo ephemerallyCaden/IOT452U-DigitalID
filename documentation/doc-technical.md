@@ -20,27 +20,27 @@
 
 ### Layered Architecture with Ports and Adapters
 
-The system uses four layers. The main idea is that dependencies always point inward — outer layers know about inner layers, never the reverse.
+The system uses four layers. The main idea is that dependencies always point inward. Outer layers know about inner layers, never the reverse similar to a hexagonal architectural structure with a core and adapters to third parties.
 
-**Layer 1: Presentation** — console menus, input collection, result display. Translates what the user types into application-layer requests.
+**Layer 1: Presentation**: console menus, input collection, result display. Translates what the user types into application-layer requests.
 
-**Layer 2: Application** — use cases live here. Also defines port interfaces (inbound: what the app offers, outbound: what it needs from infrastructure). The tool registry that enforces access control sits here too.
+**Layer 2: Application**: use cases live here. Also defines port interfaces (inbound: what the app offers, outbound: what it needs from infrastructure). The tool registry that enforces access control sits here too.
 
-**Layer 3: Domain** — business logic, entities, value objects. Doesn't know about databases or consoles. Shouldn't import anything from outer layers.
+**Layer 3: Domain**: business logic, entities, value objects. Doesn't know about databases or consoles. Shouldn't import anything from outer layers.
 
-**Layer 4: Infrastructure** — SQLite repository implementations that fulfil the outbound port contracts. Database connection management, etc.
+**Layer 4: Infrastructure**: JSON file persistence that fulfils the outbound port contracts. File I/O, serialisation, etc.
 
-The ports-and-adapters part means the application layer never directly depends on SQLite — it talks through interfaces. Infrastructure provides the concrete adapter. This makes testing straightforward since I can mock the repositories without touching a real database.
+The ports-and-adapters part means the application layer never directly depends on the storage mechanism as it talks through interfaces. Infrastructure provides the concrete adapter, the same as in hexagonal architecture. This makes testing straightforward since I can mock the repositories without touching the real data file.
 
 ### Repository Pattern
 
-Data access is abstracted through interfaces in `application/port/out/`, with SQLite implementations in `infrastructure/adapter/persistence/`. A central DependencyInjection class wires the concrete implementations at startup.
+Data access is abstracted through interfaces in `application/port/out/`, with JSON file implementations in `infrastructure/adapter/persistence/`. A central DependencyInjection class wires the concrete implementations at startup.
 
-The reason for this is mostly testability — domain and application tests don't need a database. It also means if I ever wanted to swap SQLite for something else, the change would be isolated to infrastructure.
+The reason for this is mostly testability. domain and application tests don't need the real file. It also means if I ever wanted to swap JSON for a proper database later, the change would be isolated to infrastructure and mitigate shotgun surgery.
 
 ### Dependency Injection
 
-Constructor injection throughout. One DependencyInjection class at startup creates everything and passes dependencies down. Nothing fancy — no framework, just manual wiring.
+Constructor injection throughout. One DependencyInjection class at startup creates everything and passes dependencies down.
 
 ---
 
@@ -48,7 +48,7 @@ Constructor injection throughout. One DependencyInjection class at startup creat
 
 ### Concept
 
-Each organisation gets a specific set of tools (use cases) based on what they're authorised to do. Rather than a traditional role-permissions system, I'm using enumerated tool types — the organisation's profile literally lists which tools it can access, and the registry enforces this.
+Each organisation gets a specific set of tools (use cases) based on what they're authorised to do. Rather than a traditional role-permissions system, I'm using enum tool types, which makes it incredibly simple to configure functionality for each org. The organisation's profile lists which tools it can access, and the registry enforces this.
 
 ### Tool Categories
 
@@ -123,8 +123,8 @@ Each organisation gets a specific set of tools (use cases) based on what they're
 The UseCaseRegistry is basically a factory with access control baked in. When an organisation requests a tool:
 
 1. Registry checks if the organisation's profile includes that tool
-2. If yes — returns the use case instance
-3. If no — throws UnauthorisedAccessException
+2. If yes it returns the use case instance
+3. If no it throws UnauthorisedAccessException
 
 The presentation layer only shows menu options for tools the org actually has, so in practice the exception path is a safety net rather than something users would normally hit.
 
@@ -158,9 +158,7 @@ Represents a food service professional. Main fields:
 - Collection of certifications
 - Timestamps for creation and last modification
 
-The worker entity can check its own eligibility — whether it has valid certs for a given region, whether an update is allowed based on current status, etc.
-
-Key invariants: identifier must be unique, can't go from revoked back to active, updates are forbidden when revoked.
+The worker entity can check its own eligibility e.g. whether it has valid certs for a given region, or whether an update is allowed based on current status, etc.
 
 #### Certification
 
@@ -168,59 +166,61 @@ A food safety certification or permit attached to a worker.
 
 Fields: unique ID, worker ID, certification type (enum), issuing authority, cert number, issue date, expiration date, status.
 
-It knows if it's expired, how many days until expiration, whether renewal is needed. Issue date must be before expiration date — expired certs can't be marked valid again.
+It knows if it's expired, how many days until expiration, whether renewal is needed. Issue date must be before expiration date. Expired certs can't be marked valid again.
 
 #### Work Authorisation
 
-Tracks right-to-work verification across all regions. Fields: ID, worker ID, region, verification date, status, documents presented, expiry date (null for indefinite, e.g. citizens), verified by.
+Every region has different work authorisation requirements: US uses I9 Certification, green card, UK requires valid passport etc. I am simplifying this by having one WokrAuthorisation class. This tracks right-to-work verification across all regions. Fields: ID, worker ID, region, verification date, status, documents presented, expiry date (null for indefinite, e.g. citizens), verified by.
 
-Different regions have different timing requirements — UK requires verification *before* employment starts, US allows 3 business days after hire. The entity handles this through a `meetsRegionalTimingRequirement(hireDate)` method that switches on region. Expiry date being null means indefinite right to work (citizens, settled status, etc.).
+
+
+Different regions have different timing requirements. UK requires verification *before* employment starts, US allows 3 business days after hire. The entity handles this through a `meetsRegionalTimingRequirement(hireDate)` method that switches on region. Expiry date being null means indefinite right to work (citizens, settled status, etc.).
 
 ### Value Objects
 
-**OrganisationContext** — carries org type, ID, profile, and request timestamp through the system. Passed to use cases so they know who's asking.
+**OrganisationContext**: carries org type, ID, profile, and request timestamp through the system. Passed to use cases so they know who's asking.
 
-**VerificationResult** — outcome of a verification. Can be basic (just valid/invalid), or enriched with cert lists, condition checks, or permit info depending on which tool was used.
+**VerificationResult**: outcome of a verification. Can be basic (just valid/invalid), or enriched with cert lists, condition checks, or permit info depending on which tool was used.
 
 ### Enumerations
 
-**CertificationType** — 20+ values across 12 regions. Each carries its typical validity duration, home region, display name, and issuing authority. This is probably the most complex enum in the system.
+**CertificationType**: 20+ values across 12 regions. Each carries its typical validity duration, home region, display name, and issuing authority. This is probably the most complex enum in the system.
 
-**Region** — 12 values (US, UK, Germany, France, Italy, Spain, EU general, Singapore, Japan, Hong Kong, South Korea, China). Each has country code, locale code, currency symbol.
+**Region**: 12 values (US, UK, Germany, France, Italy, Spain, EU general, Singapore, Japan, Hong Kong, South Korea, China). Each has country code, locale code, currency symbol.
 
-**WorkerStatus** — just ACTIVE, SUSPENDED, REVOKED. Controls what operations are allowed.
+**WorkerStatus**: just ACTIVE, SUSPENDED, REVOKED. Controls what operations are allowed.
 
-**OrganisationType** — the 7 org types. Maps to profiles which determine tool access.
+**OrganisationType**: the 7 org types. Maps to profiles which determine tool access.
 
 ---
 
-## Database Design
+## Data Persistence
 
-### Tables
+### Approach: JSON File Storage
 
-**Workers** — primary entity table. One-to-many with certifications, one-to-one with work authorisation, referenced by audit log.
+The system persists all data to a single `digitalid.json` file. On startup, the file is loaded into memory as domain objects. On any write operation, the updated state is written back to the file.
 
-**Certifications** — all food safety certs. Foreign key back to workers. Supports multiple certs per worker across different regions.
+I originally planned to use SQLite, but after thinking about it more, it added complexity that wasn't justified for this project's scale.
 
-**Work Authorisation** — right-to-work verification records. One per worker per region. Tracks documents presented, verification date, and expiry (null for indefinite right to work, e.g. citizens or settled status holders). Region-specific timing rules enforced in domain logic.
+### Data Structure
 
-**Audit Log** — every system action. Deliberately has no foreign key constraints — if a worker gets deleted, their audit history should remain. Records what happened, to whom, by which org, and when.
+The JSON file contains:
+- **workers**: array of worker objects with their certifications and work authorisation nested
+- **auditLog**: array of audit entries
 
-### Indexes
+### Why JSON over SQLite
 
-I'll index the obvious hot paths:
-- Workers by region and status (for compliance reports)
-- Certifications by worker ID (retrieved together constantly)
-- Certifications by expiration date (for the expiring-soon queries)
-- Audit log by timestamp and entity ID
+- No additional dependencies (Gson or Jackson for JSON vs sqlite-jdbc)
+- Human-readable: can open the file and inspect data directly
+- Simpler implementation: no schema or connection management
+- Data persists between restarts (unlike pure in-memory)
+- Appropriate for the project's scale
 
-Might add more based on actual query patterns once the system is running.
+SQLite would make sense if this were a production system with concurrent users and large datasets. For a console app with one user and a few hundred records, JSON is simpler and achieves the same goal.
 
-### Why SQLite
+### Why not pure in-memory?
 
-It's an embedded file-based database — one `digitalid.db` file in the project root. No server installation, no configuration, assessors can just run the jar. It supports full ACID transactions and standard SQL, which is more than enough for the scale of this system. The main alternative would've been PostgreSQL, but making assessors install and configure a database server seemed unreasonable for a coursework project.
-
-I did consider just using in-memory data structures (HashMaps, basically), but that loses data between restarts and doesn't demonstrate any database skills. SQLite is a real database without the operational overhead.
+Data needs to persist between restarts, otherwise the audit trail is worthless and you'd have to re-create workers every time you run the system.
 
 ---
 
@@ -242,7 +242,7 @@ com.digitalid.application
 └── request/        - Request objects for use case inputs
 
 com.digitalid.infrastructure
-├── adapter/persistence/  - SQLite repository implementations
+├── adapter/persistence/  - JSON file repository implementations
 └── config/               - DB connection + dependency injection
 
 com.digitalid.presentation
@@ -259,19 +259,19 @@ Standard Java conventions. Classes in PascalCase, methods in camelCase, enum val
 
 ### Architecture
 
-I went with a layered architecture enhanced with ports and adapters. Pure hexagonal felt like overkill for a console-only app — there's only one adapter type (console in, SQLite out), so the full hexagonal ceremony doesn't pay for itself. But I still wanted the testability that ports give you, so the hybrid approach made sense.
-
-If this were a production system with a REST API, a message queue, and maybe a GraphQL layer, full hexagonal would be worth it. For now, layers + ports at the boundaries gives me what I need without overcomplicating things.
+I went with a layered architecture enhanced with ports and adapters. There's only one adapter type (console in, JSON file out), so the full hexagonal architecture seemed slightly excessive. But I still wanted the testability that ports give you, so the hybrid approach made sense.
 
 ### Tool-Based Access Control
 
-Instead of a traditional role/permission matrix, each organisation has a list of tool enums in its profile. The registry checks this list before handing out use case instances. I find this more readable than scattered permission checks — you look at an org's profile and immediately see what it can do. The enums also mean typos get caught at compile time rather than runtime.
+Instead of a traditional role/permission matrix, each organisation has a list of tool enums in its profile. The registry checks this list before handing out use case instances. I was inspired by my work with agentic orchestration, where a toolset is given to sub-agents, leading to an effective separation of concerns.
 
-The downside is it's slightly less granular than a full permission system (you can't do "this org can UPDATE_WORKER_ID but only for workers in their region" without additional logic in the use case itself). For this project's scope, that's fine.
+I find this more readable than scattered permission checks, as you look at an org's profile and immediately see what it can do.
 
-### SQLite
+The downside is it's slightly less granular than a full permission system (you can't do "this org can UPDATE_WORKER_ID but only for workers in their region" without additional logic in the use case itself). For this project's scope, that's not required so I deemed this an effective approach.
 
-Covered above in Database Design. Basically: real database, zero operational overhead, assessors don't need to install anything.
+### JSON Persistence
+
+Covered above in Data Persistence. Simple, human-readable, no extra dependencies beyond Gson, appropriate for the scale of this project.
 
 ### Multi-Region Support
 
@@ -285,13 +285,13 @@ Food service is genuinely global, and I wanted to show the system can handle com
 
 Three layers of enforcement:
 
-1. **Presentation** — menus only show tools the org is allowed to use. Users don't see options they can't access.
-2. **Application (Registry)** — even if someone bypasses the UI, the registry checks the org profile before returning a use case. Throws UnauthorisedAccessException if denied.
-3. **Domain** — use cases can perform additional validation (e.g., checking a worker belongs to the org's region). Business rules enforced regardless of who's calling.
+1. **Presentation**: menus only show tools the org is allowed to use. Users don't see options they can't access.
+2. **Application (Registry)**: even if someone bypasses the UI, the registry checks the org profile before returning a use case. Throws UnauthorisedAccessException if denied.
+3. **Domain**: use cases can perform additional validation (e.g., checking a worker belongs to the org's region). Business rules enforced regardless of who's calling.
 
 ### Audit Trail
 
-Every action gets logged — what was done, to which entity, by whom, when. The audit log is append-only from the application's perspective. It's there for compliance (health inspections need to see who verified what) and for debugging.
+Every action gets logged. The audit log is append-only from the application's perspective. It's there for compliance (health inspections need to see who verified what) and for debugging.
 
 ---
 
@@ -304,7 +304,7 @@ Every action gets logged — what was done, to which entity, by whom, when. The 
 3. Registry checks org profile, returns CreateWorkerIdUseCase
 4. Use case validates the request
 5. Domain service enforces business rules, creates Worker entity
-6. Repository persists to SQLite
+6. Repository persists to JSON file
 7. Audit log records the action
 8. Use case returns the created worker
 9. Console displays confirmation
@@ -316,8 +316,6 @@ Every action gets logged — what was done, to which entity, by whom, when. The 
 3. Use case retrieves worker from repository
 4. Domain logic determines result based on verification type
 5. Result returned and displayed
-
-Data always flows through layers in order — presentation to application to domain to infrastructure and back. No skipping.
 
 ---
 
@@ -335,7 +333,7 @@ findByRegion(region)  // etc.
 delete(id)
 ```
 
-SQLite implementations handle connection management, SQL construction, and mapping rows to domain objects. Prepared statements throughout to prevent SQL injection.
+JSON implementations load the full dataset into memory on startup and write back to the file on every mutation. Gson handles serialisation/deserialisation.
 
 ### Use Cases
 
@@ -349,13 +347,7 @@ I considered having use cases do less (just coordination) with all logic in doma
 
 ### Validation
 
-Happens at multiple levels but with different concerns:
-
-- **Presentation:** format checking, parsing. "Is this a valid email string?" Gives user-friendly messages.
-- **Application:** request completeness, preliminary business checks. "Is this region supported?"
-- **Domain:** real invariant enforcement. "Can a revoked worker be updated?" — no. "Is issue date before expiration?" etc.
-
-Some specific rules: worker name can't be empty, DOB must be in the past, email must be valid format. Certification issue dates must precede expiration dates. You can activate a suspended worker but not a revoked one. Status changes always require an audit log entry.
+Validation happens at every level to check things like correct data types, expiration, worker verification etc.
 
 ### Exception Hierarchy
 
@@ -365,7 +357,7 @@ I'm keeping this fairly simple:
 - **Application:** UnauthorisedAccessException, ValidationException
 - **Infrastructure:** DatabaseException, ConnectionException
 
-Exceptions propagate upward — infrastructure throws, application catches and wraps if needed, presentation catches and shows a human-readable message. No swallowing exceptions silently.
+Exceptions propagate upward, so infrastructure throws, application catches and wraps if needed, presentation catches and shows a human-readable message.
 
 ---
 
@@ -373,13 +365,10 @@ Exceptions propagate upward — infrastructure throws, application catches and w
 
 ### Structure
 
-Tests mirror the source packages. Domain tests don't need any mocking — pure logic, fast execution. Application tests mock the repositories (that's the whole point of the port interfaces). Infrastructure tests use a separate test database file. Integration tests wire everything together with a real SQLite database.
+Tests mirror the source packages. Domain tests don't need any mocking. Application tests mock the repositories (that's the whole point of the port interfaces). Infrastructure tests use a separate test JSON file. Integration tests wire everything together with a real data file.
 
-I'm planning to use test fixture builders for creating realistic test data, and reset the database between test runs so they don't depend on each other.
+I'm planning to use test fixture builders for creating realistic test data, and use a fresh temp file between test runs so they don't depend on each other.
 
-Haven't decided yet whether presentation tests are worth the effort — testing console I/O is fiddly. Might just cover it through integration tests that exercise the full flow.
+Haven't decided yet whether presentation tests are worth the effort as testing console I/O can be very subjective. I may just cover these manually, as presentation tends to be fairly visible.
 
 ---
-
-**Document Status:** Working draft — will update as implementation progresses
-**Audience:** Myself + assessors
