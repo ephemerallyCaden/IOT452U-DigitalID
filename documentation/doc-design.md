@@ -28,7 +28,7 @@ A quick overview of what different regions require:
 - EU: HACCP Training (EU Regulation 852/2004)
 - Singapore: WSQ Food Safety Course
 - Japan: Food Sanitation Manager Certificate
-- US: I-9 Employment Eligibility Verification (+Food Handler Certificate in most states, 42+)
+- US: Employment Eligibility Verification (+Food Handler Certificate in most states, 42+)
 
 The food service industry also has extremely high turnover (75-150% annually), which means credential verification happens constantly. Most places currently manage this with disconnected spreadsheets or manual processes, which slows hiring and creates compliance gaps during inspections.
 
@@ -67,7 +67,7 @@ Does everything — creates worker IDs, records certifications (internationally)
 
 **Role:** Verifies worker IDs for payroll and tax compliance
 
-Real-world context: employers must verify work authorisation before payroll (Form I-9 in the US requires this within 3 business days of hire). This org just needs to confirm a worker is valid and authorised.
+Real-world context: employers must verify right-to-work before payroll (UK requires this before employment starts, US allows 3 business days after hire). This org just needs to confirm a worker is valid and authorised.
 
 **Tools Available:** 2 tools (core: view + basic verification)
 
@@ -157,7 +157,7 @@ The system provides functions organised into categories. Each organisation type 
 **CREATE_WORKER_ID**
 - Register new food service worker in system
 - Assigns unique identifier, sets initial status and region
-- Records work authorisation documentation (I-9 for US)
+- Records work authorisation documentation (right-to-work check)
 
 **UPDATE_WORKER_ID**
 - Modify contact info (email, phone), mailing address, operating region
@@ -283,6 +283,36 @@ The system supports food safety certifications across 12 regions. Here's what's 
 | Hong Kong | Basic Hygiene | Same | Lifetime |
 | S. Korea | Hygiene Ed | Same | 1 year |
 
+### Work Authorisation by Region
+
+Separate from certifications, the system also tracks whether a worker has the legal right to work in their operating region. This is a verification that all consuming organisations can check.
+
+#### United Kingdom
+- **Right to Work check** — employer must verify before employment starts (no grace period)
+- Documents: UK/Irish passport, Biometric Residence Permit (BRP), or Home Office share code
+- Indefinite for UK/Irish citizens and those with settled status
+- Time-limited for visa holders — system tracks expiry and flags when reverification needed
+
+#### European Union
+- **Work permit verification** — varies by country, but non-EU nationals need a valid residence/work permit
+- EU/EEA citizens have free movement rights (indefinite)
+- Third-country nationals need permits with expiry dates tracked by the system
+
+#### United States
+- **Employment eligibility verification** — must be completed within 3 business days of hire
+- Documents: passport, permanent resident card, employment authorisation document, etc.
+- Permanent residents have indefinite authorisation
+- Temporary work visas require reverification before expiry
+
+#### Singapore
+- **Work pass verification** — Employment Pass, S Pass, or Work Permit required for non-citizens
+- Citizens and permanent residents have indefinite right to work
+
+#### General
+- The system stores: documents presented, verification date, expiry date (null = indefinite), and the verifier
+- Region-specific timing rules are enforced automatically
+- All organisations can check work authorisation validity as part of the basic verification flow
+
 ---
 
 ## System Capabilities
@@ -370,7 +400,7 @@ System checks:
 **Certification rules:**
 - Certifications expire based on their regional validity periods
 - Workers should have appropriate certs for their operating region
-- I-9 documentation must be completed within 3 days of hire (US)
+- Right-to-work verification must meet regional timing requirements (UK: before start, US: within 3 days)
 - Temporary work authorisation requires reverification before expiry
 
 **Access control:**
@@ -390,15 +420,15 @@ System checks:
 When demonstrating the system, I'll focus on these key tools:
 
 **Essential (Must Show):**
-1. CREATE_WORKER_ID - shows full system capability
-2. VERIFY_BASIC - most common operation
-3. ADD_CERTIFICATION - demonstrates regional awareness
-4. VERIFY_WITH_CERT_HISTORY - shows enhanced capabilities
+1. CREATE_WORKER_ID
+2. VERIFY_BASIC
+3. ADD_CERTIFICATION 
+4. VERIFY_WITH_CERT_HISTORY
 
 **If Time Allows:**
-5. CHECK_EXPIRING_CERTS - practical value
-6. GENERATE_COMPLIANCE_REPORT - reporting capability
-7. Multi-region worker creation - international support
+5. CHECK_EXPIRING_CERTS
+6. GENERATE_COMPLIANCE_REPORT
+7. Multi-region worker creation
 
 **For Questions:**
 - Tool access control — how organisations get different tools

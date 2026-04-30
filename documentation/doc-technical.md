@@ -170,11 +170,11 @@ Fields: unique ID, worker ID, certification type (enum), issuing authority, cert
 
 It knows if it's expired, how many days until expiration, whether renewal is needed. Issue date must be before expiration date — expired certs can't be marked valid again.
 
-#### I9 Documentation
+#### Work Authorisation
 
-US-specific. Tracks employment eligibility verification — verification date, status, documents presented, next reverification date for temporary authorisations.
+Tracks right-to-work verification across all regions. Fields: ID, worker ID, region, verification date, status, documents presented, expiry date (null for indefinite, e.g. citizens), verified by.
 
-The 3-business-day requirement for new hires is enforced here. I'm not 100% sure yet how strictly I want to enforce this in the domain vs just flagging it — probably strict enforcement with a domain exception if violated.
+Different regions have different timing requirements — UK requires verification *before* employment starts, US allows 3 business days after hire. The entity handles this through a `meetsRegionalTimingRequirement(hireDate)` method that switches on region. Expiry date being null means indefinite right to work (citizens, settled status, etc.).
 
 ### Value Objects
 
@@ -198,11 +198,11 @@ The 3-business-day requirement for new hires is enforced here. I'm not 100% sure
 
 ### Tables
 
-**Workers** — primary entity table. One-to-many with certifications, referenced by I9 docs and audit log.
+**Workers** — primary entity table. One-to-many with certifications, one-to-one with work authorisation, referenced by audit log.
 
 **Certifications** — all food safety certs. Foreign key back to workers. Supports multiple certs per worker across different regions.
 
-**I9 Documentation** — one-to-one with US workers. Not applicable for non-US workers. Links to a document records sub-table.
+**Work Authorisation** — right-to-work verification records. One per worker per region. Tracks documents presented, verification date, and expiry (null for indefinite right to work, e.g. citizens or settled status holders). Region-specific timing rules enforced in domain logic.
 
 **Audit Log** — every system action. Deliberately has no foreign key constraints — if a worker gets deleted, their audit history should remain. Records what happened, to whom, by which org, and when.
 
