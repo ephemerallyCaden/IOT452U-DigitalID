@@ -37,7 +37,25 @@ public enum CertificationType {
     UK_DRIVER_LICENCE(Region.UNITED_KINGDOM, CertificationCategory.LICENCE, "UK Driving Licence", -1, "DVLA"),
 
     // Training — UK
-    UK_ALLERGEN_TRAINING(Region.UNITED_KINGDOM, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "FSA Approved Provider");
+    UK_ALLERGEN_TRAINING(Region.UNITED_KINGDOM, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "FSA Approved Provider"),
+
+    // Permits — US + EU
+    US_MOBILE_VENDOR_PERMIT(Region.UNITED_STATES, CertificationCategory.PERMIT, "Mobile Food Vending Permit", 12, "City Health Department"),
+    HEALTH_PERMIT(Region.EU_GENERAL, CertificationCategory.PERMIT, "Health Permit", 12, "Local Health Authority"),
+    FIRE_SAFETY_CERTIFICATE(Region.EU_GENERAL, CertificationCategory.PERMIT, "Fire Safety Certificate", 12, "Fire Service"),
+
+    // Background Checks — US + General
+    US_BACKGROUND_CHECK(Region.UNITED_STATES, CertificationCategory.BACKGROUND_CHECK, "Background Check", 24, "Screening Agency"),
+    GENERAL_BACKGROUND_CHECK(Region.EU_GENERAL, CertificationCategory.BACKGROUND_CHECK, "Background Check", 24, "Screening Agency"),
+
+    // Licences — US + General
+    US_DRIVER_LICENCE(Region.UNITED_STATES, CertificationCategory.LICENCE, "US Driver's License", -1, "State DMV"),
+    DRIVER_LICENCE(Region.EU_GENERAL, CertificationCategory.LICENCE, "Driver's Licence", -1, "Licensing Authority"),
+
+    // Training — US + EU
+    US_ALLERGEN_TRAINING(Region.UNITED_STATES, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "State Health Department"),
+    HACCP_ADVANCED(Region.EU_GENERAL, CertificationCategory.TRAINING, "Advanced HACCP Management", 36, "Certification Body"),
+    FIRST_AID_FOOD(Region.EU_GENERAL, CertificationCategory.TRAINING, "First Aid for Food Environments", 36, "Red Cross / St John");
 
     private final Region homeRegion;
     private final CertificationCategory category;
