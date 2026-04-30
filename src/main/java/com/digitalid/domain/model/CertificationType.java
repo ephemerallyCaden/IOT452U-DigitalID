@@ -25,7 +25,19 @@ public enum CertificationType {
     HONG_KONG_BASIC_FOOD_HYGIENE(Region.HONG_KONG, CertificationCategory.FOOD_SAFETY, "Basic Food Hygiene Certificate", -1, "FEHD"),
     SOUTH_KOREA_FOOD_HYGIENE(Region.SOUTH_KOREA, CertificationCategory.FOOD_SAFETY, "Food Hygiene Education", 12, "Ministry of Food and Drug Safety"),
     CHINA_FOOD_SAFETY_TRAINING(Region.CHINA, CertificationCategory.FOOD_SAFETY, "Food Safety Training Certificate", 18, "Provincial Health Commission"),
-    CHINA_HEALTH_CERTIFICATE(Region.CHINA, CertificationCategory.FOOD_SAFETY, "Health Certificate for Food Workers", 12, "Provincial Health Commission");
+    CHINA_HEALTH_CERTIFICATE(Region.CHINA, CertificationCategory.FOOD_SAFETY, "Health Certificate for Food Workers", 12, "Provincial Health Commission"),
+
+    // Permits — UK
+    UK_STREET_TRADING_LICENCE(Region.UNITED_KINGDOM, CertificationCategory.PERMIT, "Street Trading Licence", 12, "Local Authority"),
+
+    // Background Checks — UK
+    UK_DBS_CHECK(Region.UNITED_KINGDOM, CertificationCategory.BACKGROUND_CHECK, "DBS Check", 36, "Disclosure and Barring Service"),
+
+    // Licences — UK
+    UK_DRIVER_LICENCE(Region.UNITED_KINGDOM, CertificationCategory.LICENCE, "UK Driving Licence", -1, "DVLA"),
+
+    // Training — UK
+    UK_ALLERGEN_TRAINING(Region.UNITED_KINGDOM, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "FSA Approved Provider");
 
     private final Region homeRegion;
     private final CertificationCategory category;
