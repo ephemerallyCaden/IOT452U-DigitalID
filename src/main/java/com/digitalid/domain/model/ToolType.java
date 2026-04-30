@@ -2,17 +2,18 @@ package com.digitalid.domain.model;
 
 public enum ToolType {
 
-    // Core
+    // Core (all organisations)
     VIEW_WORKER_ID(ToolCategory.CORE, "View Worker ID"),
     VERIFY_BASIC(ToolCategory.CORE, "Basic Verification"),
+    VERIFY_WORK_AUTHORISATION(ToolCategory.CORE, "Verify Work Authorisation"),
 
-    // Identity Management
+    // Identity Management (central authority)
     CREATE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Create Worker ID"),
     UPDATE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Update Worker ID"),
     CHANGE_STATUS(ToolCategory.IDENTITY_MANAGEMENT, "Change Worker Status"),
     DELETE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Delete Worker ID"),
 
-    // Certification Management
+    // Certification Management (central authority)
     ADD_CERTIFICATION(ToolCategory.CERTIFICATION_MANAGEMENT, "Add Certification"),
     RENEW_CERTIFICATION(ToolCategory.CERTIFICATION_MANAGEMENT, "Renew Certification"),
     UPDATE_CERTIFICATION_STATUS(ToolCategory.CERTIFICATION_MANAGEMENT, "Update Certification Status"),
@@ -27,17 +28,14 @@ public enum ToolType {
     VIEW_AUDIT_LOG(ToolCategory.REPORTING, "View Audit Log"),
     GENERATE_COMPLIANCE_REPORT(ToolCategory.REPORTING, "Generate Compliance Report"),
     CHECK_EXPIRING_CERTS(ToolCategory.REPORTING, "Check Expiring Certifications"),
-    GENERATE_REGIONAL_REPORT(ToolCategory.REPORTING, "Generate Regional Report"),
+    CHECK_REGIONAL_COMPLIANCE(ToolCategory.REPORTING, "Check Regional Compliance"),
     VIEW_ORGANISATION_ACTIVITY(ToolCategory.REPORTING, "View Organisation Activity"),
 
-    // Search & Query
+    // Search
     SEARCH_WORKERS(ToolCategory.SEARCH, "Search Workers"),
-    SEARCH_BY_CERTIFICATION(ToolCategory.SEARCH, "Search by Certification"),
-    SEARCH_BY_EXPIRATION(ToolCategory.SEARCH, "Search by Expiration"),
 
     // Batch Operations
     BULK_STATUS_UPDATE(ToolCategory.BATCH, "Bulk Status Update"),
-    BULK_CERTIFICATION_CHECK(ToolCategory.BATCH, "Bulk Certification Check"),
     EXPORT_WORKER_DATA(ToolCategory.BATCH, "Export Worker Data"),
 
     // Notifications
