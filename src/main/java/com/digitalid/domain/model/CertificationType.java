@@ -2,15 +2,15 @@ package com.digitalid.domain.model;
 
 public enum CertificationType {
 
-    // Food Safety — United States
+    // Food Safety: United States
     US_FOOD_HANDLER(Region.UNITED_STATES, CertificationCategory.FOOD_SAFETY, "Food Handler Certificate", 36, "State Health Department"),
     US_SERVSAFE_MANAGER(Region.UNITED_STATES, CertificationCategory.FOOD_SAFETY, "ServSafe Manager (CFPM)", 60, "National Restaurant Association"),
 
-    // Food Safety — United Kingdom
+    // Food Safety: UK
     UK_LEVEL_2_FOOD_SAFETY(Region.UNITED_KINGDOM, CertificationCategory.FOOD_SAFETY, "Level 2 Food Safety and Hygiene", 36, "CIEH / Highfield"),
     UK_LEVEL_3_FOOD_SAFETY(Region.UNITED_KINGDOM, CertificationCategory.FOOD_SAFETY, "Level 3 Food Safety (Supervising)", 36, "CIEH / Highfield"),
 
-    // Food Safety — EU
+    // Food Safety: EU
     EU_HACCP(Region.EU_GENERAL, CertificationCategory.FOOD_SAFETY, "HACCP Training (EU 852/2004)", 36, "National Food Authority"),
     GERMANY_GESUNDHEITSZEUGNIS(Region.GERMANY, CertificationCategory.FOOD_SAFETY, "Gesundheitszeugnis", -1, "Gesundheitsamt"),
     GERMANY_HYGIENE_SCHULUNG(Region.GERMANY, CertificationCategory.FOOD_SAFETY, "Hygiene Schulung", -1, "IHK"),
@@ -18,7 +18,7 @@ public enum CertificationType {
     ITALY_ATTESTATO_HACCP(Region.ITALY, CertificationCategory.FOOD_SAFETY, "Attestato HACCP", 30, "ASL"),
     SPAIN_CERTIFICADO_MANIPULADOR(Region.SPAIN, CertificationCategory.FOOD_SAFETY, "Certificado Manipulador de Alimentos", 48, "Consejeria de Sanidad"),
 
-    // Food Safety — Asia
+    // Food Safety: Asia
     SINGAPORE_FOOD_SAFETY_LEVEL_1(Region.SINGAPORE, CertificationCategory.FOOD_SAFETY, "Food Safety Level 1", 60, "Singapore Food Agency"),
     SINGAPORE_WSQ_FOOD_SAFETY(Region.SINGAPORE, CertificationCategory.FOOD_SAFETY, "WSQ Food Safety Course", 60, "Singapore Food Agency"),
     JAPAN_FOOD_SANITATION_MANAGER(Region.JAPAN, CertificationCategory.FOOD_SAFETY, "Food Sanitation Manager", -1, "Public Health Center"),
@@ -27,32 +27,32 @@ public enum CertificationType {
     CHINA_FOOD_SAFETY_TRAINING(Region.CHINA, CertificationCategory.FOOD_SAFETY, "Food Safety Training Certificate", 18, "Provincial Health Commission"),
     CHINA_HEALTH_CERTIFICATE(Region.CHINA, CertificationCategory.FOOD_SAFETY, "Health Certificate for Food Workers", 12, "Provincial Health Commission"),
 
-    // Permits — UK
+    // Permits: UK
     UK_STREET_TRADING_LICENCE(Region.UNITED_KINGDOM, CertificationCategory.PERMIT, "Street Trading Licence", 12, "Local Authority"),
 
-    // Background Checks — UK
+    // Background Checks: UK
     UK_DBS_CHECK(Region.UNITED_KINGDOM, CertificationCategory.BACKGROUND_CHECK, "DBS Check", 36, "Disclosure and Barring Service"),
 
-    // Licences — UK
+    // Licences: UK
     UK_DRIVER_LICENCE(Region.UNITED_KINGDOM, CertificationCategory.LICENCE, "UK Driving Licence", -1, "DVLA"),
 
-    // Training — UK
+    // Training: UK
     UK_ALLERGEN_TRAINING(Region.UNITED_KINGDOM, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "FSA Approved Provider"),
 
-    // Permits — US + EU
+    // Permits: US + EU
     US_MOBILE_VENDOR_PERMIT(Region.UNITED_STATES, CertificationCategory.PERMIT, "Mobile Food Vending Permit", 12, "City Health Department"),
     HEALTH_PERMIT(Region.EU_GENERAL, CertificationCategory.PERMIT, "Health Permit", 12, "Local Health Authority"),
     FIRE_SAFETY_CERTIFICATE(Region.EU_GENERAL, CertificationCategory.PERMIT, "Fire Safety Certificate", 12, "Fire Service"),
 
-    // Background Checks — US + General
+    // Background Checks: US + General
     US_BACKGROUND_CHECK(Region.UNITED_STATES, CertificationCategory.BACKGROUND_CHECK, "Background Check", 24, "Screening Agency"),
     GENERAL_BACKGROUND_CHECK(Region.EU_GENERAL, CertificationCategory.BACKGROUND_CHECK, "Background Check", 24, "Screening Agency"),
 
-    // Licences — US + General
+    // Licences: US + General
     US_DRIVER_LICENCE(Region.UNITED_STATES, CertificationCategory.LICENCE, "US Driver's License", -1, "State DMV"),
     DRIVER_LICENCE(Region.EU_GENERAL, CertificationCategory.LICENCE, "Driver's Licence", -1, "Licensing Authority"),
 
-    // Training — US + EU
+    // Training: US + EU
     US_ALLERGEN_TRAINING(Region.UNITED_STATES, CertificationCategory.TRAINING, "Allergen Awareness Training", 24, "State Health Department"),
     HACCP_ADVANCED(Region.EU_GENERAL, CertificationCategory.TRAINING, "Advanced HACCP Management", 36, "Certification Body"),
     FIRST_AID_FOOD(Region.EU_GENERAL, CertificationCategory.TRAINING, "First Aid for Food Environments", 36, "Red Cross / St John");

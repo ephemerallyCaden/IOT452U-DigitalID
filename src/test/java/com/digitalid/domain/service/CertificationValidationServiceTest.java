@@ -24,10 +24,10 @@ class CertificationValidationServiceTest {
 
     @Test
     void certMustMatchWorkerRegion() {
-        // UK cert for UK worker — fine
+        // UK cert for UK worker
         assertDoesNotThrow(() ->
                 service.validateCertificationForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_KINGDOM));
-        // UK cert for US worker — rejected
+        // UK cert for US worker
         assertThrows(ValidationException.class, () ->
                 service.validateCertificationForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_STATES));
     }
