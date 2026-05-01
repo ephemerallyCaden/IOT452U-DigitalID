@@ -17,8 +17,11 @@ public class VerifyBasicUseCase implements UseCase<VerifyWorkerRequest, Verifica
     private final WorkerRepository repository;
     private final AuditService logger;
 
-    public VerifyBasicUseCase (OrganisationContext org, VerificationService verificationService,
-                               WorkerRepository repository, AuditService logger) {
+    public VerifyBasicUseCase (
+        OrganisationContext org,
+        VerificationService verificationService,
+        WorkerRepository repository,
+        AuditService logger) {
         this.org = org;
         this.verificationService = verificationService;
         this.repository = repository;
