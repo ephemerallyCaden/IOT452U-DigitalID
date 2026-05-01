@@ -1,7 +1,6 @@
 package com.digitalid.application.usecase;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import com.digitalid.application.port.in.UseCase;
 import com.digitalid.domain.model.OrganisationContext;
