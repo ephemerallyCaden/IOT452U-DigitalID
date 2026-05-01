@@ -12,8 +12,8 @@ class OrganisationContextTest {
     void hasToolAccessReturnsTrueForAllowedTool() {
         OrganisationContext ctx = new OrganisationContext("ORG-001",
                 OrganisationType.FAST_FOOD, "Mega Slice Pizza",
-                Set.of(ToolType.VIEW_WORKER_ID, ToolType.VERIFY_BASIC));
-        assertTrue(ctx.hasToolAccess(ToolType.VIEW_WORKER_ID));
+                Set.of(ToolType.VIEW_WORKER, ToolType.VERIFY_BASIC));
+        assertTrue(ctx.hasToolAccess(ToolType.VIEW_WORKER));
         assertTrue(ctx.hasToolAccess(ToolType.VERIFY_BASIC));
     }
 
@@ -21,16 +21,16 @@ class OrganisationContextTest {
     void hasToolAccessReturnsFalseForUnauthorisedTool() {
         OrganisationContext ctx = new OrganisationContext("ORG-001",
                 OrganisationType.FAST_FOOD, "Mega Slice Pizza",
-                Set.of(ToolType.VIEW_WORKER_ID, ToolType.VERIFY_BASIC));
-        assertFalse(ctx.hasToolAccess(ToolType.CREATE_WORKER_ID));
+                Set.of(ToolType.VIEW_WORKER, ToolType.VERIFY_BASIC));
+        assertFalse(ctx.hasToolAccess(ToolType.CREATE_WORKER));
     }
 
     @Test
     void allowedToolsSetIsImmutable() {
-        Set<ToolType> tools = new java.util.HashSet<>(Set.of(ToolType.VIEW_WORKER_ID));
+        Set<ToolType> tools = new java.util.HashSet<>(Set.of(ToolType.VIEW_WORKER));
         OrganisationContext ctx = new OrganisationContext("ORG-001",
                 OrganisationType.COFFEE_SHOP, "Daily Grind", tools);
-        tools.add(ToolType.DELETE_WORKER_ID);
-        assertFalse(ctx.hasToolAccess(ToolType.DELETE_WORKER_ID));
+        tools.add(ToolType.DELETE_WORKER);
+        assertFalse(ctx.hasToolAccess(ToolType.DELETE_WORKER));
     }
 }

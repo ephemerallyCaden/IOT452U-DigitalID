@@ -24,10 +24,10 @@ class UseCaseRegistryTest {
     @Test
     void registersAndRetrievesUseCase() {
         UseCase<String, String> dummyUseCase = request -> "done";
-        registry.register(ToolType.VIEW_WORKER_ID, dummyUseCase);
+        registry.register(ToolType.VIEW_WORKER, dummyUseCase);
 
         OrganisationContext context = makeContext(OrganisationType.FINE_DINING);
-        UseCase<?, ?> retrieved = registry.getUseCase(ToolType.VIEW_WORKER_ID, context);
+        UseCase<?, ?> retrieved = registry.getUseCase(ToolType.VIEW_WORKER, context);
 
         assertSame(dummyUseCase, retrieved);
     }
@@ -35,24 +35,24 @@ class UseCaseRegistryTest {
     @Test
     void throwsWhenOrganisationLacksAccess() {
         UseCase<String, String> dummyUseCase = request -> "done";
-        registry.register(ToolType.CREATE_WORKER_ID, dummyUseCase);
+        registry.register(ToolType.CREATE_WORKER, dummyUseCase);
 
-        // Fine dining doesn't have CREATE_WORKER_ID access
+        // Fine dining doesn't have CREATE_WORKER access
         OrganisationContext context = makeContext(OrganisationType.FINE_DINING);
 
         assertThrows(UnauthorisedAccessException.class, () ->
-                registry.getUseCase(ToolType.CREATE_WORKER_ID, context));
+                registry.getUseCase(ToolType.CREATE_WORKER, context));
     }
 
     @Test
     void centralAuthorityCanAccessAllTools() {
         UseCase<String, String> dummyUseCase = request -> "done";
-        registry.register(ToolType.CREATE_WORKER_ID, dummyUseCase);
+        registry.register(ToolType.CREATE_WORKER, dummyUseCase);
         registry.register(ToolType.BULK_STATUS_UPDATE, dummyUseCase);
 
         OrganisationContext context = makeContext(OrganisationType.CENTRAL_AUTHORITY);
 
-        assertDoesNotThrow(() -> registry.getUseCase(ToolType.CREATE_WORKER_ID, context));
+        assertDoesNotThrow(() -> registry.getUseCase(ToolType.CREATE_WORKER, context));
         assertDoesNotThrow(() -> registry.getUseCase(ToolType.BULK_STATUS_UPDATE, context));
     }
 
@@ -61,19 +61,19 @@ class UseCaseRegistryTest {
         OrganisationContext context = makeContext(OrganisationType.CENTRAL_AUTHORITY);
 
         assertThrows(IllegalStateException.class, () ->
-                registry.getUseCase(ToolType.VIEW_WORKER_ID, context));
+                registry.getUseCase(ToolType.VIEW_WORKER, context));
     }
 
     @Test
     void tracksRegisteredCount() {
         assertEquals(0, registry.size());
 
-        registry.register(ToolType.VIEW_WORKER_ID, request -> "a");
+        registry.register(ToolType.VIEW_WORKER, request -> "a");
         registry.register(ToolType.VERIFY_BASIC, request -> "b");
 
         assertEquals(2, registry.size());
-        assertTrue(registry.isRegistered(ToolType.VIEW_WORKER_ID));
-        assertFalse(registry.isRegistered(ToolType.DELETE_WORKER_ID));
+        assertTrue(registry.isRegistered(ToolType.VIEW_WORKER));
+        assertFalse(registry.isRegistered(ToolType.DELETE_WORKER));
     }
 
     private OrganisationContext makeContext(OrganisationType type) {

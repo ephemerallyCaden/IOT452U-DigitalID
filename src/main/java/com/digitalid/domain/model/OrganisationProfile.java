@@ -20,7 +20,7 @@ public class OrganisationProfile {
 
             case FINE_DINING:
                 return new OrganisationProfile(type, EnumSet.of(
-                        ToolType.VIEW_WORKER_ID,
+                        ToolType.VIEW_WORKER,
                         ToolType.VERIFY_BASIC,
                         ToolType.VERIFY_WORK_AUTHORISATION,
                         ToolType.VERIFY_WITH_CERT_HISTORY,
@@ -28,14 +28,14 @@ public class OrganisationProfile {
 
             case DELIVERY_SERVICE:
                 return new OrganisationProfile(type, EnumSet.of(
-                        ToolType.VIEW_WORKER_ID,
+                        ToolType.VIEW_WORKER,
                         ToolType.VERIFY_BASIC,
                         ToolType.VERIFY_WORK_AUTHORISATION,
                         ToolType.VERIFY_WITH_CONDITIONS));
 
             case STREET_VENDOR:
                 return new OrganisationProfile(type, EnumSet.of(
-                        ToolType.VIEW_WORKER_ID,
+                        ToolType.VIEW_WORKER,
                         ToolType.VERIFY_BASIC,
                         ToolType.VERIFY_WORK_AUTHORISATION,
                         ToolType.VERIFY_WITH_PERMITS));
@@ -44,7 +44,7 @@ public class OrganisationProfile {
             case FAST_FOOD:
             case COFFEE_SHOP:
                 return new OrganisationProfile(type, EnumSet.of(
-                        ToolType.VIEW_WORKER_ID,
+                        ToolType.VIEW_WORKER,
                         ToolType.VERIFY_BASIC,
                         ToolType.VERIFY_WORK_AUTHORISATION));
 

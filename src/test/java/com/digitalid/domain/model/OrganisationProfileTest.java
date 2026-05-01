@@ -10,7 +10,7 @@ class OrganisationProfileTest {
     void centralAuthorityHasAllTools() {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.CENTRAL_AUTHORITY);
         assertEquals(ToolType.values().length, profile.getToolCount());
-        assertTrue(profile.hasTool(ToolType.CREATE_WORKER_ID));
+        assertTrue(profile.hasTool(ToolType.CREATE_WORKER));
         assertTrue(profile.hasTool(ToolType.CHECK_REGIONAL_COMPLIANCE));
     }
 
@@ -28,7 +28,7 @@ class OrganisationProfileTest {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.FINE_DINING);
         assertEquals(5, profile.getToolCount());
         assertTrue(profile.hasTool(ToolType.VERIFY_WITH_CERT_HISTORY));
-        assertFalse(profile.hasTool(ToolType.CREATE_WORKER_ID));
+        assertFalse(profile.hasTool(ToolType.CREATE_WORKER));
     }
 
     @Test

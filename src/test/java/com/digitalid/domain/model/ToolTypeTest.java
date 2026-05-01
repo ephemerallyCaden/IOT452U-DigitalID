@@ -8,14 +8,14 @@ class ToolTypeTest {
 
     @Test
     void coreToolsIncludeWorkAuthorisationVerification() {
-        assertEquals(ToolCategory.CORE, ToolType.VIEW_WORKER_ID.getCategory());
+        assertEquals(ToolCategory.CORE, ToolType.VIEW_WORKER.getCategory());
         assertEquals(ToolCategory.CORE, ToolType.VERIFY_BASIC.getCategory());
         assertEquals(ToolCategory.CORE, ToolType.VERIFY_WORK_AUTHORISATION.getCategory());
     }
 
     @Test
     void createWorkerIsIdentityManagement() {
-        assertEquals(ToolCategory.IDENTITY_MANAGEMENT, ToolType.CREATE_WORKER_ID.getCategory());
+        assertEquals(ToolCategory.IDENTITY_MANAGEMENT, ToolType.CREATE_WORKER.getCategory());
     }
 
     @Test

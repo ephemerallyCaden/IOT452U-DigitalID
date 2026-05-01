@@ -3,15 +3,15 @@ package com.digitalid.domain.model;
 public enum ToolType {
 
     // Core (all organisations)
-    VIEW_WORKER_ID(ToolCategory.CORE, "View Worker ID"),
+    VIEW_WORKER(ToolCategory.CORE, "View Worker"),
     VERIFY_BASIC(ToolCategory.CORE, "Basic Verification"),
     VERIFY_WORK_AUTHORISATION(ToolCategory.CORE, "Verify Work Authorisation"),
 
     // Identity Management (central authority)
-    CREATE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Create Worker ID"),
-    UPDATE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Update Worker ID"),
+    CREATE_WORKER(ToolCategory.IDENTITY_MANAGEMENT, "Create Worker"),
+    UPDATE_WORKER(ToolCategory.IDENTITY_MANAGEMENT, "Update Worker"),
     CHANGE_STATUS(ToolCategory.IDENTITY_MANAGEMENT, "Change Worker Status"),
-    DELETE_WORKER_ID(ToolCategory.IDENTITY_MANAGEMENT, "Delete Worker ID"),
+    DELETE_WORKER(ToolCategory.IDENTITY_MANAGEMENT, "Delete Worker"),
 
     // Certification Management (central authority)
     ADD_CERTIFICATION(ToolCategory.CERTIFICATION_MANAGEMENT, "Add Certification"),

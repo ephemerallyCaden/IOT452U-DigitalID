@@ -14,8 +14,8 @@ class DomainExceptionTest {
 
     @Test
     void unauthorisedAccessShowsOrgAndToolInMessage() {
-        UnauthorisedAccessException ex = new UnauthorisedAccessException("Mega Slice Pizza", "CREATE_WORKER_ID");
+        UnauthorisedAccessException ex = new UnauthorisedAccessException("Mega Slice Pizza", "CREATE_WORKER");
         assertTrue(ex.getMessage().contains("Mega Slice Pizza"));
-        assertTrue(ex.getMessage().contains("CREATE_WORKER_ID"));
+        assertTrue(ex.getMessage().contains("CREATE_WORKER"));
     }
 }
