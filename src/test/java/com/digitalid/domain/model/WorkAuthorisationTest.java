@@ -17,7 +17,7 @@ class WorkAuthorisationTest {
 
     @Test
     void indefiniteRightToWorkNeverExpires() {
-        // UK citizen — no expiry
+        // UK citizen has no expiry
         WorkAuthorisation auth = makeAuth(Region.UNITED_KINGDOM, LocalDate.of(2024, 3, 1), null);
         assertFalse(auth.isExpired());
         assertFalse(auth.needsReverification());
@@ -44,11 +44,11 @@ class WorkAuthorisationTest {
     void ukRequiresVerificationBeforeHireDate() {
         LocalDate hireDate = LocalDate.of(2024, 5, 1);
 
-        // verified day before — passes
+        // verified day before (passes)
         WorkAuthorisation before = makeAuth(Region.UNITED_KINGDOM, LocalDate.of(2024, 4, 30), null);
         assertTrue(before.meetsRegionalTimingRequirement(hireDate));
 
-        // verified day after — fails
+        // verified day after (fails)
         WorkAuthorisation after = makeAuth(Region.UNITED_KINGDOM, LocalDate.of(2024, 5, 2), null);
         assertFalse(after.meetsRegionalTimingRequirement(hireDate));
     }
@@ -57,18 +57,18 @@ class WorkAuthorisationTest {
     void usAllowsThreeBusinessDaysAfterHire() {
         LocalDate hireDate = LocalDate.of(2024, 4, 1); // Monday
 
-        // verified Wednesday (2 business days) — passes
+        // verified Wednesday (2 business days)
         WorkAuthorisation ok = makeAuth(Region.UNITED_STATES, LocalDate.of(2024, 4, 3), null);
         assertTrue(ok.meetsRegionalTimingRequirement(hireDate));
 
-        // verified next Monday (5 business days) — fails
+        // verified next Monday (5 business days)
         WorkAuthorisation late = makeAuth(Region.UNITED_STATES, LocalDate.of(2024, 4, 8), null);
         assertFalse(late.meetsRegionalTimingRequirement(hireDate));
     }
 
     @Test
     void usThreeBusinessDaysSkipsWeekend() {
-        // hired Thursday — deadline is next Tuesday
+        // hired Thursday. Deadline is next Tuesday
         LocalDate hireDate = LocalDate.of(2024, 4, 4); // Thursday
         WorkAuthorisation auth = makeAuth(Region.UNITED_STATES, LocalDate.of(2024, 4, 9), null);
         assertTrue(auth.meetsRegionalTimingRequirement(hireDate));

@@ -16,7 +16,7 @@ public class WorkerValidationService {
         if (dateOfBirth == null || !dateOfBirth.isBefore(LocalDate.now())) {
             throw new ValidationException("Date of birth must be in the past");
         }
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.contains("@") || !email.contains(".")) {
             throw new ValidationException("Email must be a valid format");
         }
     }
@@ -31,7 +31,7 @@ public class WorkerValidationService {
     public void validateUpdate(Worker worker) {
         if (!worker.canBeUpdated()) {
             throw new InvalidOperationException(
-                    "Cannot update worker " + worker.getWorkerId() + " — status is " + worker.getStatus());
+                    "Cannot update worker " + worker.getWorkerId() + ". Status is " + worker.getStatus());
         }
     }
 }
