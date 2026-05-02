@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import com.digitalid.application.port.out.AuditLogRepository;
 import com.digitalid.infrastructure.config.DatabaseConnection;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.reflect.TypeToken;
 
 
@@ -23,7 +23,7 @@ public class JsonAuditLogRepository implements AuditLogRepository {
 
     public JsonAuditLogRepository(DatabaseConnection connection) {
         this.filePath = connection.getFilePath("audit_log.json");
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = GsonFactory.create();
     }
 
     @Override

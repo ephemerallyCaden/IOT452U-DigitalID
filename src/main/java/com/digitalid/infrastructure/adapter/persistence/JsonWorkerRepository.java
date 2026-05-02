@@ -14,8 +14,8 @@ import com.digitalid.domain.model.Region;
 import com.digitalid.domain.model.Worker;
 import com.digitalid.domain.model.WorkerStatus;
 import com.digitalid.infrastructure.config.DatabaseConnection;
+import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 
@@ -28,7 +28,7 @@ public class JsonWorkerRepository implements WorkerRepository {
     public JsonWorkerRepository(DatabaseConnection connection) {
         this.filePath = connection.getFilePath("workers.json");
         this.sequencePath = connection.getFilePath("sequence.json");
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = GsonFactory.create();
     }
 
     @Override

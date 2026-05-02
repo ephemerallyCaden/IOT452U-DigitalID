@@ -12,8 +12,8 @@ import com.digitalid.application.port.out.CertificationRepository;
 import com.digitalid.domain.model.Certification;
 import com.digitalid.domain.model.CertificationType;
 import com.digitalid.infrastructure.config.DatabaseConnection;
+import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 
@@ -24,7 +24,7 @@ public class JsonCertificationRepository implements CertificationRepository {
 
     public JsonCertificationRepository(DatabaseConnection connection) {
         this.filePath = connection.getFilePath("certifications.json");
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = GsonFactory.create();
     }
 
     @Override

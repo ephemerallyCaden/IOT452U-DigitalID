@@ -12,7 +12,7 @@ import com.digitalid.application.port.out.WorkAuthorisationRepository;
 import com.digitalid.domain.model.WorkAuthorisation;
 import com.digitalid.infrastructure.config.DatabaseConnection;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.reflect.TypeToken;
 
 
@@ -23,7 +23,7 @@ public class JsonWorkAuthorisationRepository implements WorkAuthorisationReposit
 
     public JsonWorkAuthorisationRepository(DatabaseConnection connection) {
         this.filePath = connection.getFilePath("work_authorisations.json");
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = GsonFactory.create();
     }
 
     @Override
