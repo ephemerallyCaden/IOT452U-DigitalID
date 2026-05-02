@@ -25,6 +25,9 @@ audit.log
 .classpath
 .project
 
+# Runtime data
+data/
+
 # OS files
 .DS_Store
 Thumbs.db
