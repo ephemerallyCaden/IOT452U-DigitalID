@@ -14,12 +14,12 @@ class OrganisationTypeTest {
     @Test
     void centralAuthorityDetails() {
         OrganisationType ca = OrganisationType.CENTRAL_AUTHORITY;
-        assertEquals("Food Service Certification Board", ca.getDisplayName());
+        assertEquals("Central Authority Service", ca.getDisplayName());
         assertFalse(ca.getDescription().isEmpty());
     }
 
     @Test
     void fineDiningDetails() {
-        assertEquals("Le Gourmet", OrganisationType.FINE_DINING.getDisplayName());
+        assertEquals("Fine Dining Service", OrganisationType.FINE_DINING.getDisplayName());
     }
 }
