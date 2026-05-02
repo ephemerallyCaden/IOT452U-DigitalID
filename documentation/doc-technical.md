@@ -269,6 +269,14 @@ I find this more readable than scattered permission checks, as you look at an or
 
 The downside is it's slightly less granular than a full permission system (you can't do "this org can UPDATE_WORKER_ID but only for workers in their region" without additional logic in the use case itself). For this project's scope, that's not required so I deemed this an effective approach.
 
+### JLine for Terminal Interaction
+
+I chose JLine over a plain `Scanner` for the console UI. The main reason is usability: arrow key navigation through menus is a much better experience than typing numbers, especially when there are 20+ options on screen. It makes the demo feel like an actual tool rather than a homework assignment.
+
+JLine puts the terminal into raw mode, which means I read individual keypresses instead of waiting for the user to hit Enter. This lets me render a highlighted menu that updates as the user navigates. The trade-off is that text input gets more involved since I have to manually handle backspace, echo characters, and detect Enter myself. I wrapped all of that in a `TerminalMenu` class so the rest of the presentation layer doesn't need to know about raw mode or escape sequences.
+
+The alternative was to use Lanterna (a full TUI framework with windows and borders), but that felt heavy for what I needed. JLine gives me just enough control without pulling in a whole UI toolkit.
+
 ### JSON Persistence
 
 Covered above in Data Persistence. Simple, human-readable, no extra dependencies beyond Gson, appropriate for the scale of this project.
@@ -285,9 +293,9 @@ Food service is genuinely global, and I wanted to show the system can handle com
 
 Three layers of enforcement:
 
-1. **Presentation**: menus only show tools the org is allowed to use. Users don't see options they can't access.
-2. **Application (Registry)**: even if someone bypasses the UI, the registry checks the org profile before returning a use case. Throws UnauthorisedAccessException if denied.
-3. **Domain**: use cases can perform additional validation (e.g., checking a worker belongs to the org's region). Business rules enforced regardless of who's calling.
+1. **Presentation**: menus only show tools the org is allowed to use.
+2. **Application (Registry)**: even if someone bypasses the UI, the registry checks the org profile before returning a use case. 
+3. **Domain**: use cases can perform additional validation (e.g., checking a worker belongs to the org's region), so business logic is enforced.
 
 ### Audit Trail
 

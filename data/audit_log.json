@@ -1,0 +1,51 @@
+[
+  {
+    "action": "CREATE_WORKER",
+    "entityId": "WK-GB-1",
+    "entityType": "Worker",
+    "organisationId": "ORG-1777739312909",
+    "organisationType": "CENTRAL_AUTHORITY",
+    "timestamp": "2026-05-02T17:28:48.701727"
+  },
+  {
+    "action": "DELETE_WORKER",
+    "entityId": "WK-US-10",
+    "entityType": "Worker",
+    "organisationId": "ORG-1777739312909",
+    "organisationType": "CENTRAL_AUTHORITY",
+    "timestamp": "2026-05-02T17:29:21.814826"
+  },
+  {
+    "action": "SEND_RENEWAL_REMINDER",
+    "entityId": "WK-US-1",
+    "entityType": "Notification",
+    "organisationId": "ORG-1777739312909",
+    "organisationType": "CENTRAL_AUTHORITY",
+    "details": "Reminder sent: you need to hurry up dawg",
+    "timestamp": "2026-05-02T17:29:33.731099"
+  },
+  {
+    "action": "VERIFY_WITH_CERT_HISTORY",
+    "entityId": "WK-US-1",
+    "entityType": "Worker",
+    "organisationId": "ORG-1777739312909",
+    "organisationType": "CENTRAL_AUTHORITY",
+    "timestamp": "2026-05-02T17:29:44.139744"
+  },
+  {
+    "action": "VIEW_WORKER",
+    "entityId": "WK-US-1",
+    "entityType": "Worker",
+    "organisationId": "ORG-1777739312909",
+    "organisationType": "CENTRAL_AUTHORITY",
+    "timestamp": "2026-05-02T17:29:57.051901"
+  },
+  {
+    "action": "VIEW_WORKER",
+    "entityId": "WK-US-1",
+    "entityType": "Worker",
+    "organisationId": "ORG-1777739414772",
+    "organisationType": "FAST_FOOD",
+    "timestamp": "2026-05-02T17:30:18.356494"
+  }
+]

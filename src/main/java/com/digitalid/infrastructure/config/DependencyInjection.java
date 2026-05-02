@@ -52,6 +52,9 @@ public class DependencyInjection {
         this.workerValidationService = new WorkerValidationService();
         this.certificationValidationService = new CertificationValidationService();
         this.verificationService = new VerificationService();
+
+        // Seed sample data if empty
+        new DataSeeder(workerRepository, certificationRepository).seed();
     }
 
     public UseCaseRegistry buildRegistry(OrganisationContext context) {

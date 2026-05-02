@@ -1,0 +1,112 @@
+[
+  {
+    "workerId": "WK-US-1",
+    "fullName": "Josh Mantle",
+    "dateOfBirth": "2007-04-12",
+    "email": "josh.mantle@email.com",
+    "region": "UNITED_STATES",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558591",
+    "updatedAt": "2026-05-02T17:28:31.558598"
+  },
+  {
+    "workerId": "WK-UK-2",
+    "fullName": "Joanne Binith",
+    "dateOfBirth": "2006-08-05",
+    "email": "joanne.binith@email.com",
+    "region": "UNITED_KINGDOM",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558606",
+    "updatedAt": "2026-05-02T17:28:31.558608"
+  },
+  {
+    "workerId": "WK-DE-3",
+    "fullName": "Fred Lewis",
+    "dateOfBirth": "2004-02-19",
+    "email": "fred.lewis@email.com",
+    "region": "GERMANY",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558615",
+    "updatedAt": "2026-05-02T17:28:31.558617"
+  },
+  {
+    "workerId": "WK-JP-4",
+    "fullName": "Kim Ellis",
+    "dateOfBirth": "2007-11-30",
+    "email": "kim.ellis@email.com",
+    "region": "JAPAN",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558623",
+    "updatedAt": "2026-05-02T17:28:31.558625"
+  },
+  {
+    "workerId": "WK-SG-5",
+    "fullName": "Adhish Sunishkumar",
+    "dateOfBirth": "2007-06-14",
+    "email": "adhish.sunishkumar@email.com",
+    "region": "SINGAPORE",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.55863",
+    "updatedAt": "2026-05-02T17:28:31.558632"
+  },
+  {
+    "workerId": "WK-FR-6",
+    "fullName": "Eloise Sharpe",
+    "dateOfBirth": "2006-09-03",
+    "email": "eloise.sharpe@email.com",
+    "region": "FRANCE",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558637",
+    "updatedAt": "2026-05-02T17:28:31.558639"
+  },
+  {
+    "workerId": "WK-HK-7",
+    "fullName": "Yi Long Cheong",
+    "dateOfBirth": "2007-01-15",
+    "email": "yilong.cheong@email.com",
+    "region": "HONG_KONG",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558644",
+    "updatedAt": "2026-05-02T17:28:31.558646"
+  },
+  {
+    "workerId": "WK-UK-8",
+    "fullName": "Akifah Hussain",
+    "dateOfBirth": "2005-07-11",
+    "email": "akifah.hussain@email.com",
+    "region": "UNITED_KINGDOM",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558651",
+    "updatedAt": "2026-05-02T17:28:31.558652"
+  },
+  {
+    "workerId": "WK-IT-9",
+    "fullName": "Qasim Hallim Charlie",
+    "dateOfBirth": "2006-12-25",
+    "email": "qasim.charlie@email.com",
+    "region": "ITALY",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:31.558658",
+    "updatedAt": "2026-05-02T17:28:31.55866"
+  },
+  {
+    "workerId": "WK-GB-1",
+    "fullName": "Simeon Wren",
+    "dateOfBirth": "2007-02-10",
+    "email": "sim@wren.com",
+    "region": "UNITED_KINGDOM",
+    "status": "ACTIVE",
+    "certifications": [],
+    "createdAt": "2026-05-02T17:28:48.697948",
+    "updatedAt": "2026-05-02T17:28:48.697952"
+  }
+]

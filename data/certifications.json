@@ -1,0 +1,79 @@
+[
+  {
+    "id": "CERT-001",
+    "workerId": "WK-US-1",
+    "type": "US_FOOD_HANDLER",
+    "issuingAuthority": "State Health Department",
+    "certificationNumber": "FH-44521",
+    "issueDate": "2025-06-01",
+    "expirationDate": "2028-06-01",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-002",
+    "workerId": "WK-UK-2",
+    "type": "UK_LEVEL_2_FOOD_SAFETY",
+    "issuingAuthority": "CIEH / Highfield",
+    "certificationNumber": "L2-90812",
+    "issueDate": "2025-01-10",
+    "expirationDate": "2028-01-10",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-003",
+    "workerId": "WK-DE-3",
+    "type": "GERMANY_GESUNDHEITSZEUGNIS",
+    "issuingAuthority": "Gesundheitsamt",
+    "certificationNumber": "GZ-33104",
+    "issueDate": "2023-04-20",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-004",
+    "workerId": "WK-JP-4",
+    "type": "JAPAN_FOOD_SANITATION_MANAGER",
+    "issuingAuthority": "Public Health Center",
+    "certificationNumber": "FSM-55012",
+    "issueDate": "2024-02-01",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-005",
+    "workerId": "WK-SG-5",
+    "type": "SINGAPORE_FOOD_SAFETY_LEVEL_1",
+    "issuingAuthority": "Singapore Food Agency",
+    "certificationNumber": "SFA-20198",
+    "issueDate": "2025-03-01",
+    "expirationDate": "2030-03-01",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-006",
+    "workerId": "WK-HK-7",
+    "type": "HONG_KONG_BASIC_FOOD_HYGIENE",
+    "issuingAuthority": "FEHD",
+    "certificationNumber": "HK-77231",
+    "issueDate": "2024-05-10",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-007",
+    "workerId": "WK-UK-8",
+    "type": "UK_LEVEL_2_FOOD_SAFETY",
+    "issuingAuthority": "CIEH / Highfield",
+    "certificationNumber": "L2-41099",
+    "issueDate": "2025-08-20",
+    "expirationDate": "2028-08-20",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "CERT-008",
+    "workerId": "WK-US-10",
+    "type": "US_FOOD_HANDLER",
+    "issuingAuthority": "State Health Department",
+    "certificationNumber": "FH-11098",
+    "issueDate": "2023-06-15",
+    "expirationDate": "2026-06-15",
+    "status": "ACTIVE"
+  }
+]
