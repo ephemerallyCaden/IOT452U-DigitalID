@@ -28,7 +28,7 @@ public class ConsoleApplication {
         }
 
         UseCaseRegistry registry = di.buildRegistry(context);
-        ConsoleUI console = new BasicOrganisationConsole(terminal, registry, context, di.getWorkerRepository());
+        ConsoleUI console = createConsole(context, registry);
         runMenuLoop(console, context);
         terminal.close();
     }
@@ -58,6 +58,22 @@ public class ConsoleApplication {
 
         String orgId = "ORG-" + System.currentTimeMillis();
         return di.createContext(orgId, selectedType, orgName);
+    }
+
+    private ConsoleUI createConsole(OrganisationContext context, UseCaseRegistry registry) {
+        switch (context.getType()) {
+            case CENTRAL_AUTHORITY:
+                return new CentralAuthorityConsole(terminal, registry, context,
+                        di.getWorkerRepository(), di.getCertificationRepository());
+            case FINE_DINING:
+                return new FineDiningConsole(terminal, registry, context, di.getWorkerRepository());
+            case DELIVERY_SERVICE:
+                return new DeliveryServiceConsole(terminal, registry, context, di.getWorkerRepository());
+            case STREET_VENDOR:
+                return new StreetVendorConsole(terminal, registry, context, di.getWorkerRepository());
+            default:
+                return new BasicOrganisationConsole(terminal, registry, context, di.getWorkerRepository());
+        }
     }
 
     private void runMenuLoop(ConsoleUI console, OrganisationContext context) {
