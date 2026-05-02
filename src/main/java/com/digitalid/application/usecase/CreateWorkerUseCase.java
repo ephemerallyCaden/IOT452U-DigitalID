@@ -26,9 +26,9 @@ public class CreateWorkerUseCase implements UseCase<CreateWorkerRequest, Worker>
         this.logger = logger;
     }
 
-    public String concatId(Region region, int year, int num) {
+    public String concatId(Region region, int num) {
 
-        String workerId = "WK-"+region.getCountryCode()+"-"+year+"-"+num;
+        String workerId = "WK-"+region.getCountryCode()+"-"+num;
         return workerId;
 
     }
@@ -41,7 +41,7 @@ public class CreateWorkerUseCase implements UseCase<CreateWorkerRequest, Worker>
         Region reqRegion = request.getRegion();
 
         validator.validateCreation(reqFullName,reqDateOfBirth,reqEmail);
-        String workerId = concatId(reqRegion, LocalDate.now().getYear(), repository.nextNum());
+        String workerId = concatId(reqRegion, repository.nextNum());
         Worker worker = new Worker(workerId, reqFullName, reqDateOfBirth, reqEmail, reqRegion);
         repository.save(worker);
 
