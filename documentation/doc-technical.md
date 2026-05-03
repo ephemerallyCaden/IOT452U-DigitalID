@@ -150,7 +150,7 @@ The presentation layer only shows menu options for tools the org actually has, s
 
 Represents a food service professional. Main fields:
 
-- Unique identifier with region prefix (e.g., `WK-US-2024-001`)
+- Unique identifier with region prefix (e.g., `WK-US-1`)
 - Full legal name, date of birth (immutable after creation)
 - Email, operating region (mutable by central authority)
 - Current status (ACTIVE / SUSPENDED / REVOKED)

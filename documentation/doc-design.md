@@ -94,7 +94,7 @@ Fine dining restaurants care about certification levels. They want to see ServSa
 **Example Verification:**
 ```
 Position: Head Chef
-Worker ID: WK-US-2024-001
+Worker ID: WK-US-1
 
 Result:
  Status: ACTIVE
@@ -338,7 +338,7 @@ Separate from certifications, the system also tracks whether a worker has the le
    - Issue: 2024-01-20
    - Expires: 2029-01-20
 8. System validates and creates worker
-9. Result: Worker ID WK-US-2024-001 created
+9. Result: Worker ID WK-US-1 created
 10. Audit log entry recorded
 ```
 
@@ -347,7 +347,7 @@ Separate from certifications, the system also tracks whether a worker has the le
 ```
 1. User: Le Gourmet Restaurant Portal
 2. Select: Verify with Certification History
-3. Enter Worker ID: WK-US-2024-001
+3. Enter Worker ID: WK-US-1
 4. System retrieves:
    - Worker status: ACTIVE
    - Food Handler: Valid until 2026-01-15
@@ -360,7 +360,7 @@ Separate from certifications, the system also tracks whether a worker has the le
 
 ```
 Worker: Sofia Martinez
-Worker ID: WK-INTL-2024-099
+Worker ID: WK-SG-5
 
 Certifications:
   United States:
