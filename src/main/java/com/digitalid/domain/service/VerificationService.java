@@ -68,6 +68,30 @@ public class VerificationService {
                 .build();
     }
 
+    public VerificationResult verifyWorkAuthorisation(Worker worker, List<WorkAuthorisation> authorisations) {
+        boolean valid = worker.isActive();
+
+        if (authorisations.isEmpty()) {
+            return VerificationResult.builder(worker.getWorkerId())
+                    .valid(false)
+                    .status(worker.getStatus())
+                    .message("No work authorisation on record")
+                    .build();
+        }
+
+        // Check if any authorisation is currently valid
+        boolean hasValidAuth = authorisations.stream().anyMatch(WorkAuthorisation::isValid);
+        if (!hasValidAuth) {
+            valid = false;
+        }
+
+        return VerificationResult.builder(worker.getWorkerId())
+                .valid(valid)
+                .status(worker.getStatus())
+                .message(valid ? "Work authorisation verified" : "No valid work authorisation found")
+                .build();
+    }
+
     public VerificationResult verifyWithAttributes(Worker worker, List<Certification> allCerts) {
         List<Certification> training = allCerts.stream()
                 .filter(c -> c.getType().getCategory() == CertificationCategory.TRAINING)

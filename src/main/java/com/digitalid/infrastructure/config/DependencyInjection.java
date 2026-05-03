@@ -83,6 +83,8 @@ public class DependencyInjection {
                 new ViewWorkerUseCase(context, workerRepository, auditService));
         registry.register(ToolType.VERIFY_BASIC,
                 new VerifyBasicUseCase(context, verificationService, workerRepository, auditService));
+        registry.register(ToolType.VERIFY_WORK_AUTHORISATION,
+                new VerifyWorkAuthorisationUseCase(context, verificationService, workerRepository, workAuthorisationRepository, auditService));
 
         // Enhanced Verification
         registry.register(ToolType.VERIFY_WITH_CERT_HISTORY,
