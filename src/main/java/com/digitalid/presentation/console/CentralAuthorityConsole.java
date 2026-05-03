@@ -31,30 +31,6 @@ public class CentralAuthorityConsole extends ConsoleUI {
         this.workerRepository = workerRepository;
         this.certRepository = certRepository;
         this.menuOptions = buildMenu();
-        showWelcome();
-    }
-
-    private void showWelcome() {
-        System.out.println("        ,----------------,              ,---------,");
-        System.out.println("   ,-----------------------,          ,\"        ,\"|");
-        System.out.println(" ,\"                      ,\"|        ,\"        ,\"  |");
-        System.out.println("+-----------------------+  |      ,\"        ,\"    |");
-        System.out.println("|  .-----------------.  |  |     +---------+      |");
-        System.out.println("|  | Hello! Welcome  |  |  |     | -==----'|      |");
-        System.out.println("|  |  to the         |  |  |     |         |      |");
-        System.out.println("|  |     WORKER id   |  |  |/----|`---=    |      |");
-        System.out.println("|  |  Management     |  |  |   ,/|==== ooo |      ;");
-        System.out.println("|  |  System v1.0 >_ |  |  |  // |(((( [33]|    ,\"");
-        System.out.println("|  `-----------------'  |,\" .;'| |((((     |  ,\"");
-        System.out.println("+-----------------------+  ;;  | |         |,\"");
-        System.out.println("   /_)______________(_/  //'   | +---------+");
-        System.out.println("___________________________/___  `,");
-        System.out.println("/  oooooooooooooooo  .o.  oooo /,   \\,\"-----------");
-        System.out.println("/ ==ooooooooooooooo==.o.  ooo= //   ,`\\--{)B     ,\"");
-        System.out.println("/_==__==========__==_ooo__ooo=_/'   /___________,\"");
-        System.out.println("`-----------------------------'");
-        System.out.println();
-        terminal.readLine("Press Enter to continue...");
     }
 
     private List<MenuOption> buildMenu() {
