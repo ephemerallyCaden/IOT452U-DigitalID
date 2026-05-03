@@ -48,48 +48,48 @@ For workers, it means a single digital identity that follows them across employe
 
 Layered architecture with ports and adapters. Four layers (presentation, application, domain, infrastructure) with port interfaces at the application-infrastructure boundary for testability. Full details in `doc-technical.md`.
 
-### Storage: JSON File
+### Storage: JSON Files
 
-Data is persisted to a single JSON file (`digitalid.json`). I initially considered SQLite but decided it was overkill for the scale of this project. There's no need for SQL queries or relational joins when the dataset is small enough to load into memory. JSON keeps things simple: the file is human-readable, easy to inspect during development, and doesn't require any additional dependencies beyond what Java provides.
+Data is persisted across separate JSON files (`workers.json`, `certifications.json`, `work_authorisations.json`, `audit_log.json`, `sequence.json`) in a `data/` directory. I initially considered SQLite but decided it was overkill for the scale of this project. There's no need for SQL queries or relational joins when the dataset is small enough to load into memory. JSON keeps things simple: the files are human-readable, easy to inspect during development, and don't require any additional dependencies beyond Gson.
 
 ---
 
 ## Organisation Types
 
-### 1. Central Authority: Food Service Certification Board
+### 1. Central Authority Service
 
 **Role:** Issues and manages digital worker IDs and certifications
 
 Does everything: creates worker IDs, records certifications (internationally), manages status changes, tracks expirations, generates reports, maintains the audit trail. Essentially the only entity that can write to the system.
 
 
-### 2. Financial Services: Payroll Financial
+### 2. Financial Service
 
 **Role:** Verifies worker IDs for payroll and tax compliance
 
 Real-world context: employers must verify right-to-work before payroll (UK requires this before employment starts, US allows 3 business days after hire). This org just needs to confirm a worker is valid and authorised.
 
-**Tools Available:** 2 tools (core: view + basic verification)
+**Tools Available:** 3 tools (core: view + basic verification + work authorisation)
 
 ---
 
-### 3. Fast Food Chain: Mega Slice Pizza
+### 3. Fast Food Service
 
 **Role:** Quick-service restaurant chain
 
 High turnover, rapid hiring, simple requirements. They just need to know "is this person's ID valid?" before putting them on shift.
 
-**Tools Available:** 2 tools (core: view + basic verification)
+**Tools Available:** 3 tools (core: view + basic verification + work authorisation)
 
 ---
 
-### 4. Fine Dining: Le Gourmet Restaurant Group
+### 4. Fine Dining Service
 
 **Role:** Upscale restaurant requiring detailed verification
 
-Fine dining restaurants care about certification levels. They want to see ServSafe Manager, allergen training, and full history as the role is much more specialised and requries more skill.
+Fine dining restaurants care about certification levels. They want to see ServSafe Manager, allergen training, and full history as the role is much more specialised and requires more skill.
 
-**Tools Available:** 4 tools (core + certification history + attributes verification)
+**Tools Available:** 5 tools (core + certification history + attributes verification)
 
 **Example Verification:**
 ```
@@ -101,40 +101,39 @@ Result:
  Food Handler (California): Valid until 2027-03-15
  ServSafe Manager: Valid until 2029-01-10
  Allergen Training: Completed
- Employment History: 3 positions, no violations
 
 Decision: APPROVED
 ```
 
 ---
 
-### 5. Delivery Service: QuickBite Delivery Network
+### 5. Delivery Service
 
 **Role:** Food delivery platform with driver-specific requirements
 
 Needs to check ID, background clearance, food handler permit, driver authorisation, and active restrictions.
 
-**Tools Available:** 3 tools (core + conditions)
+**Tools Available:** 4 tools (core + conditions)
 
 ---
 
-### 6. Coffee Shop Chain: Daily Grind Coffee Co.
+### 6. Coffee Shop Service
 
 **Role:** Coffee shop with mostly part-time staff
 
 Just simple verification required
 
-**Tools Available:** 2 tools (core: view + basic verification)
+**Tools Available:** 3 tools (core: view + basic verification + work authorisation)
 
 ---
 
-### 7. Street Vendor Association: Urban Eats
+### 7. Street Vendor Service
 
 **Role:** Mobile food vendor credential management
 
 Street vendors have specific requirements unique to their orgs: mobile food unit permits, annual health inspections, commissary agreements, and fire safety for propane equipment.
 
-**Tools Available:** 3 tools (core + permits)
+**Tools Available:** 4 tools (core + permits)
 
 ---
 
@@ -144,7 +143,7 @@ The system provides functions organised into categories. Each organisation type 
 
 ### CORE Tools (All Organisations)
 
-**VIEW_WORKER_ID**
+**VIEW_WORKER**
 - View basic worker information, current status, primary operating region
 - Available to: All organisation types
 
@@ -152,15 +151,18 @@ The system provides functions organised into categories. Each organisation type 
 - Simple yes/no: is this worker ID valid and active?
 - Available to: All organisation types
 
+**VERIFY_WORK_AUTHORISATION**
+- Check right-to-work documentation is valid and not expired
+- Available to: All organisation types
+
 ### IDENTITY MANAGEMENT Tools (Central Authority Only)
 
-**CREATE_WORKER_ID**
+**CREATE_WORKER**
 - Register new food service worker in system
 - Assigns unique identifier, sets initial status and region
-- Records work authorisation documentation (right-to-work check)
 
-**UPDATE_WORKER_ID**
-- Modify contact info (email, phone), mailing address, operating region
+**UPDATE_WORKER**
+- Modify contact info (email), operating region
 - Cannot modify immutable fields (name, date of birth)
 
 **CHANGE_STATUS**
@@ -168,27 +170,23 @@ The system provides functions organised into categories. Each organisation type 
 - Suspend worker (temporary, pending investigation etc.)
 - Revoke worker (permanent removal from active service)
 
-**DELETE_WORKER_ID**
-- Permanently remove worker from system, cascades to certifications
+**DELETE_WORKER**
+- Permanently remove worker from system
 - Audit log entries maintained for compliance
-- Potentially requires reason attached (?)
 
 ### CERTIFICATION MANAGEMENT Tools (Central Authority Only)
 
 **ADD_CERTIFICATION**
 - Record new food safety certification
-- Select type based on region, or manual override for a different certificate
+- Select type based on region
 - Validates against regional requirements automatically
 
 **RENEW_CERTIFICATION**
 - Update expiring certification with new dates
-- Links to previous certification record, maintains history
+- Links to previous certification record
 
 **UPDATE_CERTIFICATION_STATUS**
-- Mark as suspended, mark as expired (or automatic at expiration date), reactivate
-
-**(optional) BULK_IMPORT_CERTIFICATIONS**
-- Import multiple certifications from file
+- Mark as suspended, mark as expired, or reactivate
 
 ### SPECIAL VERIFICATION Tools
 
@@ -216,23 +214,17 @@ The system provides functions organised into categories. Each organisation type 
 
 **CHECK_EXPIRING_CERTS**: certifications expiring within 30/60/90 days, filterable by region or cert type
 
-**GENERATE_REGIONAL_REPORT**: compliance stats, worker distribution, cert types by region
+**CHECK_REGIONAL_COMPLIANCE**: compliance stats, worker distribution, cert types by region
 
 **VIEW_ORGANISATION_ACTIVITY**: verification requests by org, usage patterns
 
 ### SEARCH & QUERY Tools (Central Authority Only)
 
-**SEARCH_WORKERS**: by name, email, or worker ID. Filter by region, status, cert type.
-
-**SEARCH_BY_CERTIFICATION**: find all workers with a specific cert type, filter by validity
-
-**SEARCH_BY_EXPIRATION**: workers with expiring certs, group by type or date range
+**SEARCH_WORKERS**: by name, region, or status. Supports combined filters.
 
 ### BATCH OPERATIONS Tools (Central Authority Only)
 
-**BULK_STATUS_UPDATE**: update multiple workers at once (regulatory actions), requires justification
-
-**BULK_CERTIFICATION_CHECK**: validity check across multiple workers, summary report
+**BULK_STATUS_UPDATE**: update multiple workers at once (regulatory actions)
 
 **EXPORT_WORKER_DATA**: backup/reporting export, CSV or JSON, filterable
 
@@ -345,7 +337,7 @@ Separate from certifications, the system also tracks whether a worker has the le
 ### Workflow 2: Fine Dining Verifies Chef
 
 ```
-1. User: Le Gourmet Restaurant Portal
+1. User: Fine Dining Service Portal
 2. Select: Verify with Certification History
 3. Enter Worker ID: WK-US-1
 4. System retrieves:
@@ -420,7 +412,7 @@ System checks:
 When demonstrating the system, I'll focus on these key tools:
 
 **Essential (Must Show):**
-1. CREATE_WORKER_ID
+1. CREATE_WORKER
 2. VERIFY_BASIC
 3. ADD_CERTIFICATION 
 4. VERIFY_WITH_CERT_HISTORY

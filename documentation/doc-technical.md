@@ -56,17 +56,18 @@ Each organisation gets a specific set of tools (use cases) based on what they're
 
 | Tool Name | Purpose |
 |-----------|---------|
-| VIEW_WORKER_ID | View basic worker information |
+| VIEW_WORKER | View basic worker information |
 | VERIFY_BASIC | Check if worker ID is currently valid |
+| VERIFY_WORK_AUTHORISATION | Check right-to-work documentation |
 
 #### IDENTITY MANAGEMENT Tools (Central Authority Only)
 
 | Tool Name | Purpose |
 |-----------|---------|
-| CREATE_WORKER_ID | Register new food service worker |
-| UPDATE_WORKER_ID | Modify permitted worker attributes |
+| CREATE_WORKER | Register new food service worker |
+| UPDATE_WORKER | Modify permitted worker attributes |
 | CHANGE_STATUS | Activate, suspend, or revoke worker ID |
-| DELETE_WORKER_ID | Permanently remove worker from system |
+| DELETE_WORKER | Permanently remove worker from system |
 
 #### CERTIFICATION MANAGEMENT Tools (Central Authority Only)
 
@@ -92,23 +93,20 @@ Each organisation gets a specific set of tools (use cases) based on what they're
 | VIEW_AUDIT_LOG | View system audit trail, filterable by worker/org/date |
 | GENERATE_COMPLIANCE_REPORT | Compliance reports by region |
 | CHECK_EXPIRING_CERTS | Find certifications expiring within timeframe |
-| GENERATE_REGIONAL_REPORT | Regional compliance statistics |
+| CHECK_REGIONAL_COMPLIANCE | Regional compliance statistics |
 | VIEW_ORGANISATION_ACTIVITY | Track verification requests by organisation |
 
 #### SEARCH & QUERY Tools (Central Authority)
 
 | Tool Name | Purpose |
 |-----------|---------|
-| SEARCH_WORKERS | Search by name, email, or worker ID with filters |
-| SEARCH_BY_CERTIFICATION | Find workers with specific certification type |
-| SEARCH_BY_EXPIRATION | Find workers with expiring certifications |
+| SEARCH_WORKERS | Search by name, region, or status with filters |
 
 #### BATCH OPERATIONS Tools (Central Authority)
 
 | Tool Name | Purpose |
 |-----------|---------|
 | BULK_STATUS_UPDATE | Update status for multiple workers |
-| BULK_CERTIFICATION_CHECK | Check certification validity for multiple workers |
 | EXPORT_WORKER_DATA | Export worker data for backup or reporting |
 
 #### NOTIFICATION Tools (Central Authority)
@@ -132,13 +130,13 @@ The presentation layer only shows menu options for tools the org actually has, s
 
 | Organisation Type | Tool Count | Tools Available |
 |------------------|------------|-----------------|
-| Central Authority | 22+ | Everything |
-| Fine Dining | 4 | Core + certification history + attributes |
-| Delivery Service | 3 | Core + conditional verification |
-| Street Vendors | 3 | Core + permit verification |
-| FoodPay Financial | 2 | Core only |
-| Fast Food Chain | 2 | Core only |
-| Coffee Shop | 2 | Core only |
+| Central Authority | All | Everything |
+| Fine Dining | 5 | Core + certification history + attributes |
+| Delivery Service | 4 | Core + conditional verification |
+| Street Vendors | 4 | Core + permit verification |
+| Financial Service | 3 | Core only |
+| Fast Food | 3 | Core only |
+| Coffee Shop | 3 | Core only |
 
 ---
 
@@ -198,15 +196,13 @@ Different regions have different timing requirements. UK requires verification *
 
 ### Approach: JSON File Storage
 
-The system persists all data to a single `digitalid.json` file. On startup, the file is loaded into memory as domain objects. On any write operation, the updated state is written back to the file.
+The system persists data across separate JSON files in a `data/` directory: `workers.json`, `certifications.json`, `work_authorisations.json`, `audit_log.json`, and `sequence.json`. On startup, a `DataStoreInitialiser` creates any missing files. Each repository reads/writes its own file independently.
 
 I originally planned to use SQLite, but after thinking about it more, it added complexity that wasn't justified for this project's scale.
 
 ### Data Structure
 
-The JSON file contains:
-- **workers**: array of worker objects with their certifications and work authorisation nested
-- **auditLog**: array of audit entries
+Each file stores a JSON array of its respective entities. The separation means each repository is self-contained and doesn't need to parse unrelated data.
 
 ### Why JSON over SQLite
 
@@ -267,7 +263,7 @@ Instead of a traditional role/permission matrix, each organisation has a list of
 
 I find this more readable than scattered permission checks, as you look at an org's profile and immediately see what it can do.
 
-The downside is it's slightly less granular than a full permission system (you can't do "this org can UPDATE_WORKER_ID but only for workers in their region" without additional logic in the use case itself). For this project's scope, that's not required so I deemed this an effective approach.
+The downside is it's slightly less granular than a full permission system (you can't do "this org can UPDATE_WORKER but only for workers in their region" without additional logic in the use case itself). For this project's scope, that's not required so I deemed this an effective approach.
 
 ### JLine for Terminal Interaction
 
@@ -308,8 +304,8 @@ Every action gets logged. The audit log is append-only from the application's pe
 ### Creating a Worker (example)
 
 1. Console collects worker details, builds a CreateWorkerRequest
-2. Console asks registry for CREATE_WORKER_ID tool
-3. Registry checks org profile, returns CreateWorkerIdUseCase
+2. Console asks registry for CREATE_WORKER tool
+3. Registry checks org profile, returns CreateWorkerUseCase
 4. Use case validates the request
 5. Domain service enforces business rules, creates Worker entity
 6. Repository persists to JSON file
@@ -359,13 +355,15 @@ Validation happens at every level to check things like correct data types, expir
 
 ### Exception Hierarchy
 
-I'm keeping this fairly simple:
+I'm keeping this fairly simple. All exceptions live in `domain/exception/` and extend a base `DomainException`:
 
-- **Domain:** InvalidOperationException (business rule violations), WorkerNotFoundException, CertificationExpiredException
-- **Application:** UnauthorisedAccessException, ValidationException
-- **Infrastructure:** DatabaseException, ConnectionException
+- **InvalidOperationException**: business rule violations (e.g., reactivating a revoked worker)
+- **WorkerNotFoundException**: worker ID not found in repository
+- **CertificationExpiredException**: operations on expired certifications
+- **ValidationException**: input validation failures (blank name, invalid email, future DOB)
+- **UnauthorisedAccessException**: organisation trying to access a tool outside its profile
 
-Exceptions propagate upward, so infrastructure throws, application catches and wraps if needed, presentation catches and shows a human-readable message.
+Exceptions propagate upward — use cases throw, presentation catches and shows a human-readable message.
 
 ---
 
