@@ -1,5 +1,8 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.InvalidOperationException;
+import com.digitalid.domain.exception.ValidationException;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -12,13 +15,13 @@ public class Certification {
     private final String certificationNumber;
     private final LocalDate issueDate;
     private final LocalDate expirationDate;
-    private String status; // "ACTIVE", "SUSPENDED", "EXPIRED"
+    private CertificationStatus status;
 
     public Certification(String id, String workerId, CertificationType type,
                          String issuingAuthority, String certificationNumber,
                          LocalDate issueDate, LocalDate expirationDate) {
         if (expirationDate != null && !issueDate.isBefore(expirationDate)) {
-            throw new IllegalArgumentException("Issue date must be before expiration date");
+            throw new ValidationException("Issue date must be before expiration date");
         }
         this.id = id;
         this.workerId = workerId;
@@ -27,7 +30,7 @@ public class Certification {
         this.certificationNumber = certificationNumber;
         this.issueDate = issueDate;
         this.expirationDate = expirationDate;
-        this.status = "ACTIVE";
+        this.status = CertificationStatus.ACTIVE;
     }
 
     public boolean isExpired() {
@@ -38,7 +41,7 @@ public class Certification {
     }
 
     public boolean isValid() {
-        return "ACTIVE".equals(status) && !isExpired();
+        return status == CertificationStatus.ACTIVE && !isExpired();
     }
 
     public long daysUntilExpiration() {
@@ -56,18 +59,27 @@ public class Certification {
     }
 
     public void suspend() {
-        this.status = "SUSPENDED";
+        if (!status.canTransitionTo(CertificationStatus.SUSPENDED)) {
+            throw new InvalidOperationException(
+                    "Cannot suspend certification in " + status.getDisplayName() + " state");
+        }
+        this.status = CertificationStatus.SUSPENDED;
     }
 
     public void markExpired() {
-        this.status = "EXPIRED";
+        if (!status.canTransitionTo(CertificationStatus.EXPIRED)) {
+            throw new InvalidOperationException(
+                    "Cannot expire certification in " + status.getDisplayName() + " state");
+        }
+        this.status = CertificationStatus.EXPIRED;
     }
 
     public void reactivate() {
-        if ("EXPIRED".equals(status)) {
-            throw new IllegalStateException("Cannot reactivate an expired certification");
+        if (!status.canTransitionTo(CertificationStatus.ACTIVE)) {
+            throw new InvalidOperationException(
+                    "Cannot reactivate certification in " + status.getDisplayName() + " state");
         }
-        this.status = "ACTIVE";
+        this.status = CertificationStatus.ACTIVE;
     }
 
     // Getters
@@ -79,5 +91,5 @@ public class Certification {
     public String getCertificationNumber() { return certificationNumber; }
     public LocalDate getIssueDate() { return issueDate; }
     public LocalDate getExpirationDate() { return expirationDate; }
-    public String getStatus() { return status; }
+    public CertificationStatus getStatus() { return status; }
 }

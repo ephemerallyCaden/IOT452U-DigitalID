@@ -4,7 +4,9 @@ import com.digitalid.application.port.in.UseCase;
 import com.digitalid.application.port.out.CertificationRepository;
 import com.digitalid.application.request.UpdateCertificationStatusRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.domain.exception.ValidationException;
 import com.digitalid.domain.model.Certification;
+import com.digitalid.domain.model.CertificationStatus;
 import com.digitalid.domain.model.OrganisationContext;
 
 
@@ -27,23 +29,20 @@ public class UpdateCertificationStatusUseCase implements UseCase<UpdateCertifica
     public Certification execute(UpdateCertificationStatusRequest request) {
 
         String reqCertId = request.getCertificationId();
-        String reqNewStatus = request.getNewStatus();
+        CertificationStatus newStatus = parseStatus(request.getNewStatus());
 
         Certification cert = certRepository.findById(reqCertId);
 
-        // Apply the status change
-        switch (reqNewStatus) {
-            case "SUSPENDED":
+        switch (newStatus) {
+            case SUSPENDED:
                 cert.suspend();
                 break;
-            case "EXPIRED":
+            case EXPIRED:
                 cert.markExpired();
                 break;
-            case "ACTIVE":
+            case ACTIVE:
                 cert.reactivate();
                 break;
-            default:
-                throw new IllegalArgumentException("Unknown certification status: " + reqNewStatus);
         }
 
         certRepository.save(cert);
@@ -53,6 +52,14 @@ public class UpdateCertificationStatusUseCase implements UseCase<UpdateCertifica
 
         return cert;
 
+    }
+
+    private CertificationStatus parseStatus(String status) {
+        try {
+            return CertificationStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Unknown certification status: " + status);
+        }
     }
 
 }

@@ -1,5 +1,7 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.InvalidOperationException;
+import com.digitalid.domain.exception.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -17,7 +19,7 @@ class CertificationTest {
     @Test
     void newCertificationIsActiveByDefault() {
         Certification cert = makeCert(LocalDate.of(2024, 1, 1), LocalDate.of(2027, 1, 1));
-        assertEquals("ACTIVE", cert.getStatus());
+        assertEquals(CertificationStatus.ACTIVE, cert.getStatus());
         assertTrue(cert.isValid());
     }
 
@@ -36,7 +38,7 @@ class CertificationTest {
 
     @Test
     void issueDateMustBeBeforeExpiration() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
                 makeCert(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 1, 1)));
     }
 
@@ -62,7 +64,7 @@ class CertificationTest {
     void suspendedCertIsNotValid() {
         Certification cert = makeCert(LocalDate.of(2024, 1, 1), LocalDate.of(2030, 1, 1));
         cert.suspend();
-        assertEquals("SUSPENDED", cert.getStatus());
+        assertEquals(CertificationStatus.SUSPENDED, cert.getStatus());
         assertFalse(cert.isValid());
     }
 
@@ -70,6 +72,21 @@ class CertificationTest {
     void cannotReactivateExpiredCert() {
         Certification cert = makeCert(LocalDate.of(2024, 1, 1), LocalDate.of(2030, 1, 1));
         cert.markExpired();
-        assertThrows(IllegalStateException.class, cert::reactivate);
+        assertThrows(InvalidOperationException.class, cert::reactivate);
+    }
+
+    @Test
+    void canReactivateSuspendedCert() {
+        Certification cert = makeCert(LocalDate.of(2024, 1, 1), LocalDate.of(2030, 1, 1));
+        cert.suspend();
+        cert.reactivate();
+        assertEquals(CertificationStatus.ACTIVE, cert.getStatus());
+    }
+
+    @Test
+    void cannotSuspendExpiredCert() {
+        Certification cert = makeCert(LocalDate.of(2024, 1, 1), LocalDate.of(2030, 1, 1));
+        cert.markExpired();
+        assertThrows(InvalidOperationException.class, cert::suspend);
     }
 }
