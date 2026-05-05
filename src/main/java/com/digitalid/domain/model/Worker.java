@@ -30,8 +30,8 @@ public class Worker {
         if (dateOfBirth == null || !dateOfBirth.isBefore(LocalDate.now())) {
             throw new ValidationException("Date of birth must be in the past");
         }
-        if (email == null || !email.contains("@")) {
-            throw new ValidationException("Email must be valid");
+        if (!isValidEmail(email)) {
+            throw new ValidationException("Email must be a valid format");
         }
 
         this.workerId = workerId;
@@ -66,8 +66,8 @@ public class Worker {
         if (!canBeUpdated()) {
             throw new InvalidOperationException("Cannot update a revoked worker");
         }
-        if (newEmail == null || !newEmail.contains("@")) {
-            throw new ValidationException("Email must be valid");
+        if (!isValidEmail(newEmail)) {
+            throw new ValidationException("Email must be a valid format");
         }
         this.email = newEmail;
         this.updatedAt = LocalDateTime.now();
@@ -103,6 +103,10 @@ public class Worker {
                 .collect(Collectors.toList());
     }
 
+    private static boolean isValidEmail(String email) {
+        return email != null && email.contains("@") && email.contains(".");
+    }
+
     // Getters
 
     public String getWorkerId() { return workerId; }
@@ -116,5 +120,14 @@ public class Worker {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    public void setWorkAuthorisation(WorkAuthorisation workAuthorisation) { this.workAuthorisation = workAuthorisation; }
+    public void assignWorkAuthorisation(WorkAuthorisation workAuthorisation) {
+        if (!canBeUpdated()) {
+            throw new InvalidOperationException("Cannot assign work authorisation to a revoked worker");
+        }
+        if (workAuthorisation == null) {
+            throw new ValidationException("Work authorisation cannot be null");
+        }
+        this.workAuthorisation = workAuthorisation;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

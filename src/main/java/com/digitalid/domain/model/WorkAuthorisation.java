@@ -1,5 +1,8 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.InvalidOperationException;
+import com.digitalid.domain.exception.ValidationException;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -12,7 +15,7 @@ public class WorkAuthorisation {
     private final String workerId;
     private final Region region;
     private final LocalDate verificationDate;
-    private String status; // "VERIFIED", "PENDING", "REVERIFICATION_NEEDED"
+    private WorkAuthorisationStatus status;
     private final List<String> documentsPresented;
     private final LocalDate expiryDate; // null if indefinite (e.g. citizen/settled status)
     private final String verifiedBy;
@@ -20,11 +23,26 @@ public class WorkAuthorisation {
     public WorkAuthorisation(String id, String workerId, Region region,
                              LocalDate verificationDate, List<String> documentsPresented,
                              LocalDate expiryDate, String verifiedBy) {
+        if (id == null || id.isBlank()) {
+            throw new ValidationException("Work authorisation ID cannot be empty");
+        }
+        if (workerId == null || workerId.isBlank()) {
+            throw new ValidationException("Worker ID cannot be empty");
+        }
+        if (region == null) {
+            throw new ValidationException("Region cannot be null");
+        }
+        if (verificationDate == null) {
+            throw new ValidationException("Verification date cannot be null");
+        }
+        if (documentsPresented == null || documentsPresented.isEmpty()) {
+            throw new ValidationException("At least one document must be presented");
+        }
         this.id = id;
         this.workerId = workerId;
         this.region = region;
         this.verificationDate = verificationDate;
-        this.status = "VERIFIED";
+        this.status = WorkAuthorisationStatus.VERIFIED;
         this.documentsPresented = new ArrayList<>(documentsPresented);
         this.expiryDate = expiryDate;
         this.verifiedBy = verifiedBy;
@@ -38,7 +56,7 @@ public class WorkAuthorisation {
     }
 
     public boolean isValid() {
-        return "VERIFIED".equals(status) && !isExpired();
+        return status == WorkAuthorisationStatus.VERIFIED && !isExpired();
     }
 
     public boolean needsReverification() {
@@ -53,6 +71,22 @@ public class WorkAuthorisation {
             return Long.MAX_VALUE;
         }
         return ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+    }
+
+    public void markForReverification() {
+        if (!status.canTransitionTo(WorkAuthorisationStatus.REVERIFICATION_NEEDED)) {
+            throw new InvalidOperationException(
+                    "Cannot mark for reverification from " + status.getDisplayName() + " state");
+        }
+        this.status = WorkAuthorisationStatus.REVERIFICATION_NEEDED;
+    }
+
+    public void confirm() {
+        if (!status.canTransitionTo(WorkAuthorisationStatus.VERIFIED)) {
+            throw new InvalidOperationException(
+                    "Cannot confirm from " + status.getDisplayName() + " state");
+        }
+        this.status = WorkAuthorisationStatus.VERIFIED;
     }
 
     /**
@@ -93,10 +127,8 @@ public class WorkAuthorisation {
     public String getWorkerId() { return workerId; }
     public Region getRegion() { return region; }
     public LocalDate getVerificationDate() { return verificationDate; }
-    public String getStatus() { return status; }
+    public WorkAuthorisationStatus getStatus() { return status; }
     public List<String> getDocumentsPresented() { return List.copyOf(documentsPresented); }
     public LocalDate getExpiryDate() { return expiryDate; }
     public String getVerifiedBy() { return verifiedBy; }
-
-    public void setStatus(String status) { this.status = status; }
 }
