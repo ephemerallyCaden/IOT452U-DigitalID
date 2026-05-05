@@ -1,8 +1,8 @@
 package com.digitalid.domain.exception;
 
-public class WorkerNotFoundException extends DomainException {
+public class WorkerNotFoundException extends EntityNotFoundException {
 
     public WorkerNotFoundException(String workerId) {
-        super("Worker not found: " + workerId);
+        super("Worker", workerId);
     }
 }

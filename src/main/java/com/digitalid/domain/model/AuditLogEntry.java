@@ -1,5 +1,7 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.ValidationException;
+
 import java.time.LocalDateTime;
 
 public class AuditLogEntry {
@@ -17,10 +19,10 @@ public class AuditLogEntry {
                          String organisationId, String organisationType, String details,
                          LocalDateTime timestamp) {
         if (action == null || action.isBlank()) {
-            throw new IllegalArgumentException("Action cannot be empty");
+            throw new ValidationException("Action cannot be empty");
         }
         if (entityId == null || entityId.isBlank()) {
-            throw new IllegalArgumentException("Entity ID cannot be empty");
+            throw new ValidationException("Entity ID cannot be empty");
         }
         this.id = id;
         this.action = action;

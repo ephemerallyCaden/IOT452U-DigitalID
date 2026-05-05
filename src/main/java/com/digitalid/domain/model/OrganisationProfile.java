@@ -1,5 +1,7 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.ValidationException;
+
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -49,7 +51,7 @@ public class OrganisationProfile {
                         ToolType.VERIFY_WORK_AUTHORISATION));
 
             default:
-                throw new IllegalArgumentException("Unknown organisation type: " + type);
+                throw new ValidationException("Unknown organisation type: " + type);
         }
     }
 

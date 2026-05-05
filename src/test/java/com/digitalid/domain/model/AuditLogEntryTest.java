@@ -1,5 +1,6 @@
 package com.digitalid.domain.model;
 
+import com.digitalid.domain.exception.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -36,21 +37,21 @@ class AuditLogEntryTest {
 
     @Test
     void rejectsBlankAction() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
                 new AuditLogEntry("AUD-003", "", "WK-US-2024-001", "Worker",
                         "ORG-001", "CENTRAL_AUTHORITY", "details", null));
     }
 
     @Test
     void rejectsNullAction() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
                 new AuditLogEntry("AUD-004", null, "WK-US-2024-001", "Worker",
                         "ORG-001", "CENTRAL_AUTHORITY", "details", null));
     }
 
     @Test
     void rejectsBlankEntityId() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ValidationException.class, () ->
                 new AuditLogEntry("AUD-005", "CREATE_WORKER", "", "Worker",
                         "ORG-001", "CENTRAL_AUTHORITY", "details", null));
     }
