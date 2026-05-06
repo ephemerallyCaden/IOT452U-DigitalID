@@ -34,9 +34,11 @@ public class CertificationValidationService {
                 "Certification " + type.getDisplayName() + " is not valid for region " + workerRegion.getDisplayName());
     }
 
-    public void validateRenewal(Certification existing, CertificationType newType) {
-        if (existing.getType() != newType) {
-            throw new ValidationException("Renewal must be for the same certification type");
+    public void validateRenewal(Certification existing) {
+        if (existing.isExpired() && existing.getExpirationDate() != null
+                && existing.getExpirationDate().plusYears(1).isBefore(LocalDate.now())) {
+            throw new ValidationException(
+                    "Cannot renew certification that has been expired for more than one year");
         }
     }
 

@@ -42,12 +42,20 @@ class CertificationValidationServiceTest {
     }
 
     @Test
-    void renewalMustMatchExistingCertType() {
-        Certification existing = new Certification("C-3", "WK-GB-2024-001",
+    void renewalRejectsLongExpiredCert() {
+        // Cert expired over a year ago
+        Certification longExpired = new Certification("C-3", "WK-GB-2024-001",
                 CertificationType.UK_LEVEL_2_FOOD_SAFETY, "CIEH", "L2-003",
-                LocalDate.of(2021, 1, 1), LocalDate.of(2024, 1, 1));
-        assertDoesNotThrow(() -> service.validateRenewal(existing, CertificationType.UK_LEVEL_2_FOOD_SAFETY));
-        assertThrows(ValidationException.class, () ->
-                service.validateRenewal(existing, CertificationType.UK_LEVEL_3_FOOD_SAFETY));
+                LocalDate.of(2020, 1, 1), LocalDate.of(2022, 1, 1));
+        assertThrows(ValidationException.class, () -> service.validateRenewal(longExpired));
+    }
+
+    @Test
+    void renewalAcceptsRecentlyExpiredCert() {
+        // Cert expired less than a year ago
+        Certification recentlyExpired = new Certification("C-4", "WK-GB-2024-001",
+                CertificationType.UK_LEVEL_2_FOOD_SAFETY, "CIEH", "L2-004",
+                LocalDate.of(2022, 1, 1), LocalDate.now().minusDays(30));
+        assertDoesNotThrow(() -> service.validateRenewal(recentlyExpired));
     }
 }

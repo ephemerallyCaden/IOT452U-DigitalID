@@ -53,10 +53,8 @@ public class AddCertificationUseCase implements UseCase<AddCertificationRequest,
 
         validator.validateCertification(cert);
 
-        // Save and link to worker
+        // Save certification (single source of truth: CertificationRepository)
         certRepository.save(cert);
-        worker.addCertification(cert);
-        workerRepository.save(worker);
 
         // Logging
         logger.log("ADD_CERTIFICATION", certId, "Certification", org);
