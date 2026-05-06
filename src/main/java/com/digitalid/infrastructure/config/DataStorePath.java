@@ -5,16 +5,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class DatabaseConnection {
+/**
+ * Resolves file paths for the JSON flat-file persistence layer.
+ * Manages the data directory where all JSON data files are stored.
+ */
+public class DataStorePath {
 
     private final Path dataDirectory;
 
-    public DatabaseConnection(String directoryPath) {
+    public DataStorePath(String directoryPath) {
         this.dataDirectory = Paths.get(directoryPath);
         initialise();
     }
 
-    public DatabaseConnection() {
+    public DataStorePath() {
         this("data");
     }
 

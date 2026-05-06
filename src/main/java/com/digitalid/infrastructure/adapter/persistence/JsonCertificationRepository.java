@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.digitalid.application.port.out.CertificationRepository;
+import com.digitalid.domain.exception.EntityNotFoundException;
 import com.digitalid.domain.model.Certification;
 import com.digitalid.domain.model.CertificationType;
-import com.digitalid.infrastructure.config.DatabaseConnection;
+import com.digitalid.infrastructure.config.DataStorePath;
 import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,7 +23,7 @@ public class JsonCertificationRepository implements CertificationRepository {
     private final Path filePath;
     private final Gson gson;
 
-    public JsonCertificationRepository(DatabaseConnection connection) {
+    public JsonCertificationRepository(DataStorePath connection) {
         this.filePath = connection.getFilePath("certifications.json");
         this.gson = GsonFactory.create();
     }
@@ -40,7 +41,7 @@ public class JsonCertificationRepository implements CertificationRepository {
         return loadAll().stream()
                 .filter(c -> c.getId().equals(certificationId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Certification not found: " + certificationId));
+                .orElseThrow(() -> new EntityNotFoundException("Certification", certificationId));
     }
 
     @Override
@@ -80,7 +81,7 @@ public class JsonCertificationRepository implements CertificationRepository {
             List<Certification> certs = gson.fromJson(content, listType);
             return certs != null ? certs : new ArrayList<>();
         } catch (IOException e) {
-            return new ArrayList<>();
+            throw new RuntimeException("Failed to read certifications data store: " + filePath, e);
         }
     }
 

@@ -13,7 +13,7 @@ import com.digitalid.domain.exception.WorkerNotFoundException;
 import com.digitalid.domain.model.Region;
 import com.digitalid.domain.model.Worker;
 import com.digitalid.domain.model.WorkerStatus;
-import com.digitalid.infrastructure.config.DatabaseConnection;
+import com.digitalid.infrastructure.config.DataStorePath;
 import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -25,7 +25,7 @@ public class JsonWorkerRepository implements WorkerRepository {
     private final Path sequencePath;
     private final Gson gson;
 
-    public JsonWorkerRepository(DatabaseConnection connection) {
+    public JsonWorkerRepository(DataStorePath connection) {
         this.filePath = connection.getFilePath("workers.json");
         this.sequencePath = connection.getFilePath("sequence.json");
         this.gson = GsonFactory.create();
@@ -95,7 +95,7 @@ public class JsonWorkerRepository implements WorkerRepository {
             List<Worker> workers = gson.fromJson(content, listType);
             return workers != null ? workers : new ArrayList<>();
         } catch (IOException e) {
-            return new ArrayList<>();
+            throw new RuntimeException("Failed to read workers data store: " + filePath, e);
         }
     }
 

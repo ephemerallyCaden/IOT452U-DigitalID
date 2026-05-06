@@ -9,8 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.digitalid.application.port.out.WorkAuthorisationRepository;
+import com.digitalid.domain.exception.EntityNotFoundException;
 import com.digitalid.domain.model.WorkAuthorisation;
-import com.digitalid.infrastructure.config.DatabaseConnection;
+import com.digitalid.infrastructure.config.DataStorePath;
 import com.google.gson.Gson;
 import com.digitalid.infrastructure.config.GsonFactory;
 import com.google.gson.reflect.TypeToken;
@@ -21,7 +22,7 @@ public class JsonWorkAuthorisationRepository implements WorkAuthorisationReposit
     private final Path filePath;
     private final Gson gson;
 
-    public JsonWorkAuthorisationRepository(DatabaseConnection connection) {
+    public JsonWorkAuthorisationRepository(DataStorePath connection) {
         this.filePath = connection.getFilePath("work_authorisations.json");
         this.gson = GsonFactory.create();
     }
@@ -39,7 +40,7 @@ public class JsonWorkAuthorisationRepository implements WorkAuthorisationReposit
         return loadAll().stream()
                 .filter(a -> a.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Work authorisation not found: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("WorkAuthorisation", id));
     }
 
     @Override
@@ -63,7 +64,7 @@ public class JsonWorkAuthorisationRepository implements WorkAuthorisationReposit
             List<WorkAuthorisation> auths = gson.fromJson(content, listType);
             return auths != null ? auths : new ArrayList<>();
         } catch (IOException e) {
-            return new ArrayList<>();
+            throw new RuntimeException("Failed to read work authorisations data store: " + filePath, e);
         }
     }
 

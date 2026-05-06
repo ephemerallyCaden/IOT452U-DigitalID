@@ -6,9 +6,9 @@ import java.nio.file.Path;
 
 public class DataStoreInitialiser {
 
-    private final DatabaseConnection connection;
+    private final DataStorePath connection;
 
-    public DataStoreInitialiser(DatabaseConnection connection) {
+    public DataStoreInitialiser(DataStorePath connection) {
         this.connection = connection;
     }
 
