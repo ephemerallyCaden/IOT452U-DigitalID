@@ -2,10 +2,8 @@ package com.digitalid.application.usecase;
 
 import java.util.List;
 
-import com.digitalid.application.port.in.UseCase;
 import com.digitalid.application.port.out.CertificationRepository;
 import com.digitalid.application.port.out.WorkerRepository;
-import com.digitalid.application.request.VerifyWorkerRequest;
 import com.digitalid.application.service.AuditService;
 import com.digitalid.domain.model.Certification;
 import com.digitalid.domain.model.OrganisationContext;
@@ -14,42 +12,22 @@ import com.digitalid.domain.model.Worker;
 import com.digitalid.domain.service.VerificationService;
 
 
-public class VerifyWithConditionsUseCase implements UseCase<VerifyWorkerRequest, VerificationResult> {
+public class VerifyWithConditionsUseCase extends AbstractEnhancedVerificationUseCase {
 
-    private final OrganisationContext org;
-    private final VerificationService verificationService;
-    private final WorkerRepository workerRepository;
-    private final CertificationRepository certRepository;
-    private final AuditService logger;
-
-    public VerifyWithConditionsUseCase (
-        OrganisationContext org,
-        VerificationService verificationService,
-        WorkerRepository workerRepository,
-        CertificationRepository certRepository,
-        AuditService logger
-    ) {
-        this.org = org;
-        this.verificationService = verificationService;
-        this.workerRepository = workerRepository;
-        this.certRepository = certRepository;
-        this.logger = logger;
+    public VerifyWithConditionsUseCase(OrganisationContext org, VerificationService verificationService,
+                                       WorkerRepository workerRepository, CertificationRepository certRepository,
+                                       AuditService logger) {
+        super(org, verificationService, workerRepository, certRepository, logger);
     }
 
-    public VerificationResult execute(VerifyWorkerRequest request) {
+    @Override
+    protected VerificationResult verify(Worker worker, List<Certification> certs) {
+        return verificationService.verifyWithConditions(worker, certs);
+    }
 
-        String reqWorkerId = request.getWorkerId();
-
-        Worker worker = workerRepository.findById(reqWorkerId);
-        List<Certification> certs = certRepository.findByWorkerId(reqWorkerId);
-
-        VerificationResult result = verificationService.verifyWithConditions(worker, certs);
-
-        // Logging
-        logger.log("VERIFY_WITH_CONDITIONS", reqWorkerId, "Worker", org);
-
-        return result;
-
+    @Override
+    protected String getAuditAction() {
+        return "VERIFY_WITH_CONDITIONS";
     }
 
 }
