@@ -1,6 +1,7 @@
 package com.digitalid.application.usecase;
 
 import com.digitalid.application.port.in.UseCase;
+import com.digitalid.application.port.out.NotificationPort;
 import com.digitalid.application.port.out.WorkerRepository;
 import com.digitalid.application.request.NotificationRequest;
 import com.digitalid.application.service.AuditService;
@@ -12,12 +13,14 @@ public class SendStatusNotificationUseCase implements UseCase<NotificationReques
 
     private final OrganisationContext org;
     private final WorkerRepository workerRepository;
+    private final NotificationPort notificationPort;
     private final AuditService logger;
 
     public SendStatusNotificationUseCase (OrganisationContext org, WorkerRepository workerRepository,
-                                          AuditService logger) {
+                                          NotificationPort notificationPort, AuditService logger) {
         this.org = org;
         this.workerRepository = workerRepository;
+        this.notificationPort = notificationPort;
         this.logger = logger;
     }
 
@@ -25,12 +28,10 @@ public class SendStatusNotificationUseCase implements UseCase<NotificationReques
 
         String reqWorkerId = request.getWorkerId();
 
-        // Verify worker exists
         Worker worker = workerRepository.findById(reqWorkerId);
 
-        // Simulate sending the notification
-        System.out.println("[NOTIFICATION] Status notification sent to "
-                + worker.getFullName() + " (" + worker.getEmail() + "): " + request.getMessage());
+        notificationPort.send(worker.getFullName(), worker.getEmail(),
+                "Status notification: " + request.getMessage());
 
         // Logging
         logger.log("SEND_STATUS_NOTIFICATION", reqWorkerId, "Notification", org,
