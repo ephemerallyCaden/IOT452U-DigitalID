@@ -2,8 +2,10 @@ package com.digitalid.application.usecase;
 
 import java.time.LocalDate;
 
+import com.digitalid.application.port.out.CertificationRepository;
 import com.digitalid.application.request.DeleteWorkerRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.application.service.WorkerLifecycleNotifier;
 import com.digitalid.domain.model.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,15 +18,18 @@ class DeleteWorkerUseCaseTest {
 
     private DeleteWorkerUseCase useCase;
     private CreateWorkerUseCaseTest.FakeWorkerRepository workerRepo;
+    private CertificationRepository certRepo;
     private CreateWorkerUseCaseTest.FakeAuditLogRepository auditRepo;
 
     @BeforeEach
     void setUp() {
         workerRepo = new CreateWorkerUseCaseTest.FakeWorkerRepository();
+        certRepo = new AddCertificationUseCaseTest.FakeCertificationRepository();
         auditRepo = new CreateWorkerUseCaseTest.FakeAuditLogRepository();
         AuditService auditService = new AuditService(auditRepo);
+        WorkerLifecycleNotifier notifier = new WorkerLifecycleNotifier();
         OrganisationContext context = makeContext();
-        useCase = new DeleteWorkerUseCase(context, workerRepo, auditService);
+        useCase = new DeleteWorkerUseCase(context, workerRepo, certRepo, auditService, notifier);
 
         Worker worker = new Worker("WK-UK-1", "Delete Me", LocalDate.of(1999, 5, 5),
                 "delete@email.com", Region.UNITED_KINGDOM);

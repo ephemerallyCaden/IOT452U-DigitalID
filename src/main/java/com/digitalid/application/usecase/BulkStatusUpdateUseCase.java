@@ -7,6 +7,7 @@ import com.digitalid.application.port.in.UseCase;
 import com.digitalid.application.port.out.WorkerRepository;
 import com.digitalid.application.request.BulkStatusUpdateRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.domain.exception.DomainException;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.Worker;
 import com.digitalid.domain.service.WorkerValidationService;
@@ -30,18 +31,26 @@ public class BulkStatusUpdateUseCase implements UseCase<BulkStatusUpdateRequest,
     public List<Worker> execute(BulkStatusUpdateRequest request) {
 
         List<Worker> updated = new ArrayList<>();
+        List<String> failures = new ArrayList<>();
 
         for (String workerId : request.getWorkerIds()) {
-            Worker worker = workerRepository.findById(workerId);
-            validator.validateStatusChange(worker, request.getNewStatus());
-            worker.changeStatus(request.getNewStatus());
-            workerRepository.save(worker);
-            updated.add(worker);
+            try {
+                Worker worker = workerRepository.findById(workerId);
+                validator.validateStatusChange(worker, request.getNewStatus());
+                worker.changeStatus(request.getNewStatus());
+                workerRepository.save(worker);
+                updated.add(worker);
+            } catch (DomainException e) {
+                failures.add(workerId + ": " + e.getMessage());
+            }
         }
 
         // Logging
-        logger.log("BULK_STATUS_UPDATE", "BATCH", "Worker", org,
-                updated.size() + " worker(s) updated to " + request.getNewStatus());
+        String details = updated.size() + " worker(s) updated to " + request.getNewStatus();
+        if (!failures.isEmpty()) {
+            details += "; " + failures.size() + " failed: " + String.join(", ", failures);
+        }
+        logger.log("BULK_STATUS_UPDATE", "BATCH", "Worker", org, details);
 
         return updated;
 
