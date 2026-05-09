@@ -1,6 +1,7 @@
 package com.digitalid.application.service;
 
 import com.digitalid.application.port.out.AuditLogRepository;
+import com.digitalid.domain.model.AuditLogEntry;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationProfile;
 import com.digitalid.domain.model.OrganisationType;
@@ -63,23 +64,24 @@ class AuditServiceTest {
         final List<Entry> entries = new ArrayList<>();
 
         @Override
-        public void save(String action, String entityId, String entityType,
-                         String organisationId, String organisationType, String details) {
-            entries.add(new Entry(action, entityId, entityType, organisationId, organisationType, details));
+        public void save(AuditLogEntry auditEntry) {
+            entries.add(new Entry(auditEntry.getAction(), auditEntry.getEntityId(),
+                    auditEntry.getEntityType(), auditEntry.getOrganisationId(),
+                    auditEntry.getOrganisationType(), auditEntry.getDetails()));
         }
 
         @Override
-        public List<String> findByEntityId(String entityId) {
+        public List<AuditLogEntry> findByEntityId(String entityId) {
             return List.of();
         }
 
         @Override
-        public List<String> findByOrganisationId(String organisationId) {
+        public List<AuditLogEntry> findByOrganisationId(String organisationId) {
             return List.of();
         }
 
         @Override
-        public List<String> findAll() {
+        public List<AuditLogEntry> findAll() {
             return List.of();
         }
 

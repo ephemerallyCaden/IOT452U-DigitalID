@@ -5,10 +5,11 @@ import java.util.List;
 import com.digitalid.application.port.in.UseCase;
 import com.digitalid.application.port.out.AuditLogRepository;
 import com.digitalid.application.request.AuditLogRequest;
+import com.digitalid.domain.model.AuditLogEntry;
 import com.digitalid.domain.model.OrganisationContext;
 
 
-public class ViewAuditLogUseCase implements UseCase<AuditLogRequest, List<String>> {
+public class ViewAuditLogUseCase implements UseCase<AuditLogRequest, List<AuditLogEntry>> {
 
     private final OrganisationContext org;
     private final AuditLogRepository auditLogRepository;
@@ -18,7 +19,7 @@ public class ViewAuditLogUseCase implements UseCase<AuditLogRequest, List<String
         this.auditLogRepository = auditLogRepository;
     }
 
-    public List<String> execute(AuditLogRequest request) {
+    public List<AuditLogEntry> execute(AuditLogRequest request) {
 
         String entityId = request.getEntityId();
         String organisationId = request.getOrganisationId();

@@ -8,6 +8,7 @@ import com.digitalid.application.port.out.AuditLogRepository;
 import com.digitalid.application.port.out.WorkerRepository;
 import com.digitalid.application.request.CreateWorkerRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.application.service.WorkerLifecycleNotifier;
 import com.digitalid.domain.exception.ValidationException;
 import com.digitalid.domain.model.*;
 import com.digitalid.domain.service.WorkerValidationService;
@@ -30,8 +31,9 @@ class CreateWorkerUseCaseTest {
         auditRepo = new FakeAuditLogRepository();
         AuditService auditService = new AuditService(auditRepo);
         WorkerValidationService validator = new WorkerValidationService();
+        WorkerLifecycleNotifier notifier = new WorkerLifecycleNotifier();
         OrganisationContext context = makeContext();
-        useCase = new CreateWorkerUseCase(context, validator, workerRepo, auditService);
+        useCase = new CreateWorkerUseCase(context, validator, workerRepo, auditService, notifier);
     }
 
     @Test
@@ -150,19 +152,18 @@ class CreateWorkerUseCaseTest {
         final List<Entry> entries = new ArrayList<>();
 
         @Override
-        public void save(String action, String entityId, String entityType,
-                         String organisationId, String organisationType, String details) {
-            entries.add(new Entry(action, entityId, entityType));
+        public void save(AuditLogEntry auditEntry) {
+            entries.add(new Entry(auditEntry.getAction(), auditEntry.getEntityId(), auditEntry.getEntityType()));
         }
 
         @Override
-        public List<String> findByEntityId(String entityId) { return List.of(); }
+        public List<AuditLogEntry> findByEntityId(String entityId) { return List.of(); }
 
         @Override
-        public List<String> findByOrganisationId(String organisationId) { return List.of(); }
+        public List<AuditLogEntry> findByOrganisationId(String organisationId) { return List.of(); }
 
         @Override
-        public List<String> findAll() { return List.of(); }
+        public List<AuditLogEntry> findAll() { return List.of(); }
 
         static class Entry {
             final String action;
