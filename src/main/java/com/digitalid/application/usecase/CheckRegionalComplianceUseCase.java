@@ -11,14 +11,14 @@ import com.digitalid.domain.model.Region;
 import com.digitalid.domain.model.Worker;
 
 
-public class GenerateRegionalReportUseCase implements UseCase<GenerateReportRequest, String> {
+public class CheckRegionalComplianceUseCase implements UseCase<GenerateReportRequest, String> {
 
     private final OrganisationContext org;
     private final WorkerRepository workerRepository;
     private final AuditService logger;
 
-    public GenerateRegionalReportUseCase (OrganisationContext org, WorkerRepository workerRepository,
-                                          AuditService logger) {
+    public CheckRegionalComplianceUseCase (OrganisationContext org, WorkerRepository workerRepository,
+                                           AuditService logger) {
         this.org = org;
         this.workerRepository = workerRepository;
         this.logger = logger;
@@ -30,7 +30,7 @@ public class GenerateRegionalReportUseCase implements UseCase<GenerateReportRequ
         List<Worker> workers = workerRepository.findByRegion(region);
 
         StringBuilder report = new StringBuilder();
-        report.append("=== Regional Report: ").append(region.getDisplayName()).append(" ===\n");
+        report.append("=== Regional Compliance: ").append(region.getDisplayName()).append(" ===\n");
         report.append("Total workers in region: ").append(workers.size()).append("\n");
         report.append("Active: ").append(
                 workers.stream().filter(Worker::isActive).count()).append("\n");
@@ -45,7 +45,7 @@ public class GenerateRegionalReportUseCase implements UseCase<GenerateReportRequ
         }
 
         // Logging
-        logger.log("GENERATE_REGIONAL_REPORT", region.name(), "Report", org);
+        logger.log("CHECK_REGIONAL_COMPLIANCE", region.name(), "Report", org);
 
         return report.toString();
 

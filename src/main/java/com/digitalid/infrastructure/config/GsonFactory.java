@@ -17,12 +17,18 @@ import com.google.gson.JsonSerializer;
 
 public class GsonFactory {
 
+    private static final Gson INSTANCE = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+            .create();
+
+    private GsonFactory() {
+        // Prevent instantiation — Singleton
+    }
+
     public static Gson create() {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
+        return INSTANCE;
     }
 
     private static class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {

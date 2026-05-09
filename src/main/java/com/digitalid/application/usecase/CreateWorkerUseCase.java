@@ -10,6 +10,7 @@ import com.digitalid.domain.service.WorkerValidationService;
 import com.digitalid.application.port.out.WorkerRepository;
 import com.digitalid.application.request.CreateWorkerRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.application.service.WorkerLifecycleNotifier;
 
 
 public class CreateWorkerUseCase implements UseCase<CreateWorkerRequest, Worker> {
@@ -18,19 +19,20 @@ public class CreateWorkerUseCase implements UseCase<CreateWorkerRequest, Worker>
     private final WorkerValidationService validator;
     private final WorkerRepository repository;
     private final AuditService logger;
+    private final WorkerLifecycleNotifier notifier;
 
-    public CreateWorkerUseCase (OrganisationContext org, WorkerValidationService validator, WorkerRepository repository, AuditService logger) {
+    public CreateWorkerUseCase (OrganisationContext org, WorkerValidationService validator,
+                                WorkerRepository repository, AuditService logger,
+                                WorkerLifecycleNotifier notifier) {
         this.org = org;
         this.validator = validator;
         this.repository = repository;
         this.logger = logger;
+        this.notifier = notifier;
     }
 
-    public String concatId(Region region, int num) {
-
-        String workerId = "WK-"+region.getCountryCode()+"-"+num;
-        return workerId;
-
+    private String generateWorkerId(Region region, int num) {
+        return "WK-" + region.getCountryCode() + "-" + num;
     }
 
     public Worker execute(CreateWorkerRequest request) {
@@ -41,9 +43,12 @@ public class CreateWorkerUseCase implements UseCase<CreateWorkerRequest, Worker>
         Region reqRegion = request.getRegion();
 
         validator.validateCreation(reqFullName,reqDateOfBirth,reqEmail);
-        String workerId = concatId(reqRegion, repository.nextNum());
+        String workerId = generateWorkerId(reqRegion, repository.nextNum());
         Worker worker = new Worker(workerId, reqFullName, reqDateOfBirth, reqEmail, reqRegion);
         repository.save(worker);
+
+        // Notify observers of new worker
+        notifier.notifyWorkerCreated(worker);
 
         // Logging
         logger.log("CREATE_WORKER", workerId, "Worker", org);

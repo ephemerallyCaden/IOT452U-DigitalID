@@ -44,7 +44,7 @@ public class DataSeeder {
                 "akifah.hussain@gmail.com", Region.UNITED_KINGDOM);
         Worker w9 = new Worker("WK-IT-9", "Qasim Hallim Charlie", LocalDate.of(2006, 12, 25),
                 "qasim.charlie@gmail.com", Region.ITALY);
-        Worker w10 = new Worker("WK-US-10", "Benjamin Newington", LocalDate.of(1700, 3, 8),
+        Worker w10 = new Worker("WK-US-10", "Benjamin Newington", LocalDate.of(1990, 3, 8),
                 "benjamin.newington@gmail.com", Region.UNITED_STATES);
 
         workerRepository.save(w1);

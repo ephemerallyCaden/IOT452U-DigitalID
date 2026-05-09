@@ -9,7 +9,7 @@ import com.digitalid.domain.model.Worker;
 public abstract class ConsoleUI {
 
     protected final TerminalMenu terminal;
-    protected final WorkerRepository workerRepository;
+    private final WorkerRepository workerRepository;
 
     public ConsoleUI(TerminalMenu terminal, WorkerRepository workerRepository) {
         this.terminal = terminal;

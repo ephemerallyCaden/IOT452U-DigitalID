@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import com.digitalid.application.request.ChangeStatusRequest;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.application.service.WorkerLifecycleNotifier;
 import com.digitalid.domain.exception.InvalidOperationException;
 import com.digitalid.domain.model.*;
 import com.digitalid.domain.service.WorkerValidationService;
@@ -26,8 +27,9 @@ class ChangeStatusUseCaseTest {
         auditRepo = new CreateWorkerUseCaseTest.FakeAuditLogRepository();
         AuditService auditService = new AuditService(auditRepo);
         WorkerValidationService validator = new WorkerValidationService();
+        WorkerLifecycleNotifier notifier = new WorkerLifecycleNotifier();
         OrganisationContext context = makeContext();
-        useCase = new ChangeStatusUseCase(context, validator, workerRepo, auditService);
+        useCase = new ChangeStatusUseCase(context, validator, workerRepo, auditService, notifier);
 
         // Seed a worker
         Worker worker = new Worker("WK-US-1", "Test Worker", LocalDate.of(2000, 1, 1),

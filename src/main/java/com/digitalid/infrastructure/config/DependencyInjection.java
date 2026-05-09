@@ -2,10 +2,13 @@ package com.digitalid.infrastructure.config;
 
 import com.digitalid.application.port.out.AuditLogRepository;
 import com.digitalid.application.port.out.CertificationRepository;
+import com.digitalid.application.port.out.NotificationPort;
 import com.digitalid.application.port.out.WorkAuthorisationRepository;
 import com.digitalid.application.port.out.WorkerRepository;
 import com.digitalid.application.registry.UseCaseRegistry;
 import com.digitalid.application.service.AuditService;
+import com.digitalid.application.service.ConsoleNotificationListener;
+import com.digitalid.application.service.WorkerLifecycleNotifier;
 import com.digitalid.application.usecase.*;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationProfile;
@@ -14,6 +17,9 @@ import com.digitalid.domain.model.ToolType;
 import com.digitalid.domain.service.CertificationValidationService;
 import com.digitalid.domain.service.VerificationService;
 import com.digitalid.domain.service.WorkerValidationService;
+import com.digitalid.infrastructure.adapter.export.CsvExportFormatter;
+import com.digitalid.infrastructure.adapter.export.JsonExportFormatter;
+import com.digitalid.infrastructure.adapter.notification.ConsoleNotificationAdapter;
 import com.digitalid.infrastructure.adapter.persistence.JsonAuditLogRepository;
 import com.digitalid.infrastructure.adapter.persistence.JsonCertificationRepository;
 import com.digitalid.infrastructure.adapter.persistence.JsonWorkAuthorisationRepository;
@@ -22,7 +28,7 @@ import com.digitalid.infrastructure.adapter.persistence.JsonWorkerRepository;
 
 public class DependencyInjection {
 
-    private final DatabaseConnection connection;
+    private final DataStorePath connection;
     private final WorkerRepository workerRepository;
     private final CertificationRepository certificationRepository;
     private final WorkAuthorisationRepository workAuthorisationRepository;
@@ -31,6 +37,8 @@ public class DependencyInjection {
     private final WorkerValidationService workerValidationService;
     private final CertificationValidationService certificationValidationService;
     private final VerificationService verificationService;
+    private final WorkerLifecycleNotifier statusChangeNotifier;
+    private final NotificationPort notificationPort;
 
     public DependencyInjection() {
         this("data");
@@ -38,7 +46,7 @@ public class DependencyInjection {
 
     public DependencyInjection(String dataDir) {
         // Infrastructure
-        this.connection = new DatabaseConnection(dataDir);
+        this.connection = new DataStorePath(dataDir);
         new DataStoreInitialiser(connection).migrate();
 
         // Repositories
@@ -53,6 +61,13 @@ public class DependencyInjection {
         this.certificationValidationService = new CertificationValidationService();
         this.verificationService = new VerificationService();
 
+        // Observer: status change notifier with registered listeners
+        this.statusChangeNotifier = new WorkerLifecycleNotifier();
+        this.statusChangeNotifier.addListener(new ConsoleNotificationListener());
+
+        // Notification adapter
+        this.notificationPort = new ConsoleNotificationAdapter();
+
         // Seed sample data if empty
         new DataSeeder(workerRepository, certificationRepository).seed();
     }
@@ -62,13 +77,13 @@ public class DependencyInjection {
 
         // Identity Management
         registry.register(ToolType.CREATE_WORKER,
-                new CreateWorkerUseCase(context, workerValidationService, workerRepository, auditService));
+                new CreateWorkerUseCase(context, workerValidationService, workerRepository, auditService, statusChangeNotifier));
         registry.register(ToolType.UPDATE_WORKER,
                 new UpdateWorkerUseCase(context, workerValidationService, workerRepository, auditService));
         registry.register(ToolType.CHANGE_STATUS,
-                new ChangeStatusUseCase(context, workerValidationService, workerRepository, auditService));
+                new ChangeStatusUseCase(context, workerValidationService, workerRepository, auditService, statusChangeNotifier));
         registry.register(ToolType.DELETE_WORKER,
-                new DeleteWorkerUseCase(context, workerRepository, auditService));
+                new DeleteWorkerUseCase(context, workerRepository, certificationRepository, auditService, statusChangeNotifier));
 
         // Certification Management
         registry.register(ToolType.ADD_CERTIFICATION,
@@ -104,7 +119,7 @@ public class DependencyInjection {
         registry.register(ToolType.CHECK_EXPIRING_CERTS,
                 new CheckExpiringCertsUseCase(context, certificationRepository, auditService));
         registry.register(ToolType.CHECK_REGIONAL_COMPLIANCE,
-                new GenerateRegionalReportUseCase(context, workerRepository, auditService));
+                new CheckRegionalComplianceUseCase(context, workerRepository, auditService));
         registry.register(ToolType.VIEW_ORGANISATION_ACTIVITY,
                 new ViewOrganisationActivityUseCase(context, auditLogRepository));
 
@@ -116,13 +131,15 @@ public class DependencyInjection {
         registry.register(ToolType.BULK_STATUS_UPDATE,
                 new BulkStatusUpdateUseCase(context, workerValidationService, workerRepository, auditService));
         registry.register(ToolType.EXPORT_WORKER_DATA,
-                new ExportWorkerDataUseCase(context, workerRepository, auditService));
+                new ExportWorkerDataUseCase(context, workerRepository,
+                        java.util.Map.of("CSV", new CsvExportFormatter(), "JSON", new JsonExportFormatter()),
+                        auditService));
 
         // Notifications
         registry.register(ToolType.SEND_RENEWAL_REMINDER,
-                new SendRenewalReminderUseCase(context, workerRepository, auditService));
+                new SendRenewalReminderUseCase(context, workerRepository, notificationPort, auditService));
         registry.register(ToolType.SEND_STATUS_NOTIFICATION,
-                new SendStatusNotificationUseCase(context, workerRepository, auditService));
+                new SendStatusNotificationUseCase(context, workerRepository, notificationPort, auditService));
 
         return registry;
     }

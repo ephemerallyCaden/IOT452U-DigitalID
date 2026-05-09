@@ -248,14 +248,19 @@ public class CentralAuthorityConsole extends ConsoleUI {
                 entityId.isEmpty() ? null : entityId, null);
         UseCase<AuditLogRequest, List> useCase =
                 (UseCase<AuditLogRequest, List>) registry.getUseCase(ToolType.VIEW_AUDIT_LOG, context);
-        List<String> entries = useCase.execute(request);
+        List<AuditLogEntry> entries = useCase.execute(request);
         printInfo("\n--- Audit Log (" + entries.size() + " entries) ---");
-        entries.forEach(this::printInfo);
+        for (AuditLogEntry e : entries) {
+            printInfo("[" + e.getTimestamp() + "] " + e.getAction() + " | "
+                    + e.getEntityType() + ":" + e.getEntityId() + " | "
+                    + e.getOrganisationType() + " (" + e.getOrganisationId() + ")"
+                    + (e.getDetails() != null ? " | " + e.getDetails() : ""));
+        }
     }
 
     @SuppressWarnings("unchecked")
     private void handleComplianceReport() {
-        GenerateReportRequest request = new GenerateReportRequest("COMPLIANCE", null);
+        GenerateReportRequest request = new GenerateReportRequest(null);
         UseCase<GenerateReportRequest, String> useCase =
                 (UseCase<GenerateReportRequest, String>) registry.getUseCase(ToolType.GENERATE_COMPLIANCE_REPORT, context);
         String report = useCase.execute(request);
@@ -279,7 +284,7 @@ public class CentralAuthorityConsole extends ConsoleUI {
     private void handleRegionalReport() {
         String regionStr = readInput("Region: ");
         Region region = Region.valueOf(regionStr.toUpperCase());
-        GenerateReportRequest request = new GenerateReportRequest("REGIONAL", region);
+        GenerateReportRequest request = new GenerateReportRequest(region);
         UseCase<GenerateReportRequest, String> useCase =
                 (UseCase<GenerateReportRequest, String>) registry.getUseCase(ToolType.CHECK_REGIONAL_COMPLIANCE, context);
         String report = useCase.execute(request);
@@ -291,9 +296,13 @@ public class CentralAuthorityConsole extends ConsoleUI {
         AuditLogRequest request = new AuditLogRequest(null, context.getOrganisationId());
         UseCase<AuditLogRequest, List> useCase =
                 (UseCase<AuditLogRequest, List>) registry.getUseCase(ToolType.VIEW_ORGANISATION_ACTIVITY, context);
-        List<String> entries = useCase.execute(request);
+        List<AuditLogEntry> entries = useCase.execute(request);
         printInfo("\n--- Organisation Activity (" + entries.size() + " entries) ---");
-        entries.forEach(this::printInfo);
+        for (AuditLogEntry e : entries) {
+            printInfo("[" + e.getTimestamp() + "] " + e.getAction() + " | "
+                    + e.getEntityType() + ":" + e.getEntityId()
+                    + (e.getDetails() != null ? " | " + e.getDetails() : ""));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -348,7 +357,7 @@ public class CentralAuthorityConsole extends ConsoleUI {
         String workerId = promptWorkerId();
         String message = readInput("Reminder message: ");
 
-        NotificationRequest request = new NotificationRequest(workerId, "RENEWAL_REMINDER", message);
+        NotificationRequest request = new NotificationRequest(workerId, message);
         UseCase<NotificationRequest, Void> useCase =
                 (UseCase<NotificationRequest, Void>) registry.getUseCase(ToolType.SEND_RENEWAL_REMINDER, context);
         useCase.execute(request);
@@ -359,7 +368,7 @@ public class CentralAuthorityConsole extends ConsoleUI {
         String workerId = promptWorkerId();
         String message = readInput("Notification message: ");
 
-        NotificationRequest request = new NotificationRequest(workerId, "STATUS_CHANGE", message);
+        NotificationRequest request = new NotificationRequest(workerId, message);
         UseCase<NotificationRequest, Void> useCase =
                 (UseCase<NotificationRequest, Void>) registry.getUseCase(ToolType.SEND_STATUS_NOTIFICATION, context);
         useCase.execute(request);
