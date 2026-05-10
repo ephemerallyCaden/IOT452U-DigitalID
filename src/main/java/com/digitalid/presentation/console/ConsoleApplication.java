@@ -8,17 +8,17 @@ import com.digitalid.application.registry.UseCaseRegistry;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationType;
 import com.digitalid.domain.model.Region;
-import com.digitalid.infrastructure.config.DependencyInjection;
+import com.digitalid.infrastructure.config.ApplicationFactory;
 
 
 public class ConsoleApplication {
 
     private final TerminalMenu terminal;
-    private final DependencyInjection di;
+    private final ApplicationFactory di;
 
     public ConsoleApplication() {
         this.terminal = new TerminalMenu();
-        this.di = new DependencyInjection();
+        this.di = new ApplicationFactory();
     }
 
     public void start() {
@@ -122,7 +122,7 @@ public class ConsoleApplication {
         while (true) {
             int choice = console.showMenuAndSelect(title);
             if (choice == 0) {
-                System.out.println("\nGoodbye!");
+                System.out.println("\nByeeee!");
                 break;
             }
             console.handleChoice(choice);

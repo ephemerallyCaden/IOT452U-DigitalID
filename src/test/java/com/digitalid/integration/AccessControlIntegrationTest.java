@@ -8,7 +8,7 @@ import java.util.Comparator;
 import com.digitalid.application.registry.UseCaseRegistry;
 import com.digitalid.domain.exception.UnauthorisedAccessException;
 import com.digitalid.domain.model.*;
-import com.digitalid.infrastructure.config.DependencyInjection;
+import com.digitalid.infrastructure.config.ApplicationFactory;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class AccessControlIntegrationTest {
 
     private Path tempDir;
-    private DependencyInjection di;
+    private ApplicationFactory di;
 
     @BeforeEach
     void setUp() throws IOException {
         tempDir = Files.createTempDirectory("digitalid-access-test-");
-        di = new DependencyInjection(tempDir.toString());
+        di = new ApplicationFactory(tempDir.toString());
     }
 
     @AfterEach

@@ -27,7 +27,7 @@ import com.digitalid.infrastructure.adapter.persistence.JsonWorkAuthorisationRep
 import com.digitalid.infrastructure.adapter.persistence.JsonWorkerRepository;
 
 
-public class DependencyInjection {
+public class ApplicationFactory {
 
     private final DataStorePath connection;
     private final WorkerRepository workerRepository;
@@ -41,11 +41,11 @@ public class DependencyInjection {
     private final WorkerLifecycleNotifier statusChangeNotifier;
     private final NotificationPort notificationPort;
 
-    public DependencyInjection() {
+    public ApplicationFactory() {
         this("data");
     }
 
-    public DependencyInjection(String dataDir) {
+    public ApplicationFactory(String dataDir) {
         // Infrastructure
         this.connection = new DataStorePath(dataDir);
         new DataStoreInitialiser(connection).migrate();

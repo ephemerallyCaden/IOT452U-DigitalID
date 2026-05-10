@@ -12,7 +12,7 @@ import com.digitalid.application.registry.UseCaseRegistry;
 import com.digitalid.application.request.*;
 import com.digitalid.domain.exception.InvalidOperationException;
 import com.digitalid.domain.model.*;
-import com.digitalid.infrastructure.config.DependencyInjection;
+import com.digitalid.infrastructure.config.ApplicationFactory;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,14 +28,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class WorkerLifecycleIntegrationTest {
 
     private Path tempDir;
-    private DependencyInjection di;
+    private ApplicationFactory di;
     private UseCaseRegistry registry;
     private OrganisationContext context;
 
     @BeforeEach
     void setUp() throws IOException {
         tempDir = Files.createTempDirectory("digitalid-test-");
-        di = new DependencyInjection(tempDir.toString());
+        di = new ApplicationFactory(tempDir.toString());
         context = di.createContext("ORG-INTEG", OrganisationType.CENTRAL_AUTHORITY, "Integration Test Authority", null);
         registry = di.buildRegistry(context);
     }
