@@ -73,8 +73,7 @@ public class BasicOrganisationConsole extends ConsoleUI {
         UseCase<VerifyWorkerRequest, VerificationResult> useCase =
                 (UseCase<VerifyWorkerRequest, VerificationResult>) registry.getUseCase(tool, context);
         VerificationResult result = useCase.execute(request);
-        printInfo("Valid: " + result.isValid());
-        printInfo("Message: " + result.getMessage());
+        displayVerificationResult(result);
     }
 
 }

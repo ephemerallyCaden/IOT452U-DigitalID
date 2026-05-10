@@ -216,8 +216,7 @@ public class CentralAuthorityConsole extends ConsoleUI {
         UseCase<VerifyWorkerRequest, VerificationResult> useCase =
                 (UseCase<VerifyWorkerRequest, VerificationResult>) registry.getUseCase(ToolType.VERIFY_BASIC, context);
         VerificationResult result = useCase.execute(request);
-        printInfo("Valid: " + result.isValid());
-        printInfo("Message: " + result.getMessage());
+        displayVerificationResult(result);
     }
 
     private void handleEnhancedVerify(int choice) {
@@ -234,11 +233,7 @@ public class CentralAuthorityConsole extends ConsoleUI {
         UseCase<VerifyWorkerRequest, VerificationResult> useCase =
                 (UseCase<VerifyWorkerRequest, VerificationResult>) registry.getUseCase(tool, context);
         VerificationResult result = useCase.execute(request);
-        printInfo("Valid: " + result.isValid());
-        printInfo("Message: " + result.getMessage());
-        if (result.getCertifications() != null && !result.getCertifications().isEmpty()) {
-            printInfo("Certifications: " + result.getCertifications().size());
-        }
+        displayVerificationResult(result);
     }
 
     @SuppressWarnings("unchecked")

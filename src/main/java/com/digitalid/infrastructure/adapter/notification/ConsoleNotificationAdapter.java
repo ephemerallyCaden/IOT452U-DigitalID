@@ -6,7 +6,6 @@ public class ConsoleNotificationAdapter implements NotificationPort {
 
     @Override
     public void send(String recipient, String email, String message) {
-        System.out.println("[NOTIFICATION] " + message + " sent to "
-                + recipient + " (" + email + ")");
+        System.out.println("[NOTIFICATION] " + recipient + " (" + email + "): " + message);
     }
 }

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.digitalid.application.port.out.WorkerRepository;
+import com.digitalid.domain.model.Certification;
+import com.digitalid.domain.model.VerificationResult;
 import com.digitalid.domain.model.Worker;
 
 public abstract class ConsoleUI {
@@ -64,6 +66,23 @@ public abstract class ConsoleUI {
 
     protected void printInfo(String message) {
         System.out.println(message);
+    }
+
+    protected void displayVerificationResult(VerificationResult result) {
+        printInfo("\n--- Verification Result ---");
+        printInfo("Worker:  " + result.getWorkerId());
+        printInfo("Status:  " + result.getStatus().getDisplayName());
+        printInfo("Valid:   " + result.isValid());
+        printInfo("Message: " + result.getMessage());
+        if (result.getCertifications() != null && !result.getCertifications().isEmpty()) {
+            printInfo("\nCertifications considered:");
+            for (Certification c : result.getCertifications()) {
+                String expiry = c.getExpirationDate() != null ? c.getExpirationDate().toString() : "Lifetime";
+                String validity = c.isValid() ? "VALID" : "INVALID";
+                printInfo("  - " + c.getType().getDisplayName()
+                        + " [" + validity + "] (expires: " + expiry + ")");
+            }
+        }
     }
 
     protected void pause() {

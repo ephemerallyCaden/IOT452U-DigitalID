@@ -37,17 +37,32 @@ public class VerificationService {
                 .collect(Collectors.toList());
 
         // all relevant certs must be valid for conditions to pass
-        if (valid && !relevant.isEmpty()) {
-            boolean allValid = relevant.stream().allMatch(Certification::isValid);
-            if (!allValid) {
+        StringBuilder message = new StringBuilder();
+        if (!valid) {
+            message.append("Worker is not active");
+        } else if (relevant.isEmpty()) {
+            message.append("No background checks or licences on record");
+            valid = false;
+        } else {
+            List<Certification> failed = relevant.stream()
+                    .filter(c -> !c.isValid())
+                    .collect(Collectors.toList());
+            if (failed.isEmpty()) {
+                message.append("All conditions met (")
+                        .append(relevant.size()).append(" checked)");
+            } else {
                 valid = false;
+                message.append(failed.size()).append(" condition(s) failed: ");
+                message.append(failed.stream()
+                        .map(c -> c.getType().getDisplayName())
+                        .collect(Collectors.joining(", ")));
             }
         }
 
         return VerificationResult.builder(worker.getWorkerId())
                 .valid(valid)
                 .status(worker.getStatus())
-                .message(valid ? "All conditions met" : "One or more conditions not met")
+                .message(message.toString())
                 .certifications(relevant)
                 .build();
     }
