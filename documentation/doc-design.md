@@ -23,6 +23,8 @@ For technical implementation details, architecture patterns, and database design
 
 The food truck and food service industry requires extensive documentation and certification for workers to operate legally. This is especially true internationally, where many countries use different certification and there is currently no system for overlap between them.
 
+This industry choice allows for an extensive project scope, due to many factors. The first are the countless discrepancies in certification required between different regions. This is a great reason to having a centralising system. The legal importance of food safety providing genuine limits and safeguards for me to implement, and thirdly, the very accessible concept of an entity-based system of workers, is a simple idea that I can build on. I also found this to be a relatively unique endeavour, with no existing projects in the area of centralising food service documents, so I hope you find it just as interesting.
+
 A quick overview of what different regions require:
 - UK: Level 2/3 Food Safety (CIEH)
 - EU: HACCP Training (EU Regulation 852/2004)
@@ -40,13 +42,13 @@ This platform centralises all of that into one place:
 - Health permits and business documentation
 - Verification services for hiring and compliance
 
-For workers, it means a single digital identity that follows them across employers and regions. For organisations, it means fast verification without chasing paper certificates. For the central authority, it means audit trails and compliance reporting that's actually reliable.
+This is great for workers, as it means a single digital identity that follows them across employers and regions. For organisations looking to hire, pay employees, check certification renewals etc., it provides fast verification without chasing certificates. This is also beneficial to the central authorities data visibility, as it provides centralised access to comprehensive audit trails and compliance reporting.
 
 ---
 
 ## Architecture Overview
 
-Layered architecture with ports and adapters. Four layers (presentation, application, domain, infrastructure) with port interfaces at the application-infrastructure boundary for testability. Full details in `doc-technical.md`.
+Layered architecture with ports and adapters. Four layers (presentation, application, domain, infrastructure) with port interfaces at the application-infrastructure boundary for both scalability and testability. Full details in `doc-technical.md`.
 
 ### Storage: JSON Files
 
@@ -60,14 +62,16 @@ Data is persisted across separate JSON files (`workers.json`, `certifications.js
 
 **Role:** Issues and manages digital worker IDs and certifications
 
-Does everything: creates worker IDs, records certifications (internationally), manages status changes, tracks expirations, generates reports, maintains the audit trail. Essentially the only entity that can write to the system.
+Does everything, the only entity that can write to the system and therefore handling all forms of data in the system: worker IDs, certification, non-food-safety documents, audit and compliance logs.
+
+**Tools Available:** All
 
 
 ### 2. Financial Service
 
 **Role:** Verifies worker IDs for payroll and tax compliance
 
-Real-world context: employers must verify right-to-work before payroll (UK requires this before employment starts, US allows 3 business days after hire). This org just needs to confirm a worker is valid and authorised.
+Employers must verify right-to-work before payroll (UK requires this before employment starts, US allows 3 business days after hire). This org just needs to confirm a worker is valid and authorised. This is done based on the region.
 
 **Tools Available:** 3 tools (core: view + basic verification + work authorisation)
 
@@ -77,15 +81,14 @@ Real-world context: employers must verify right-to-work before payroll (UK requi
 
 **Role:** Quick-service restaurant chain
 
-High turnover, rapid hiring, simple requirements. They just need to know "is this person's ID valid?" before putting them on shift.
-
+High turnover in workers and therefore requiring only simple verification and hiring requirements. They just need to know the validity of a worker's ID
 **Tools Available:** 3 tools (core: view + basic verification + work authorisation)
 
 ---
 
 ### 4. Fine Dining Service
 
-**Role:** Upscale restaurant requiring detailed verification
+**Role:** For fancier restaurants requiring more rigorous validation for workers they hire
 
 Fine dining restaurants care about certification levels. They want to see ServSafe Manager, allergen training, and full history as the role is much more specialised and requires more skill.
 
@@ -94,13 +97,13 @@ Fine dining restaurants care about certification levels. They want to see ServSa
 **Example Verification:**
 ```
 Position: Head Chef
-Worker ID: WK-US-1
+Worker ID: WK-UK-1
 
 Result:
  Status: ACTIVE
- Food Handler (California): Valid until 2027-03-15
- ServSafe Manager: Valid until 2029-01-10
- Allergen Training: Completed
+ Level 2 Food Safety (CIEH): Valid until 2027-03-15
+ Level 3 Food Safety - Supervising (Highfield): Valid until 2029-01-10
+ Allergen Awareness Training: Completed
 
 Decision: APPROVED
 ```
@@ -177,9 +180,9 @@ The system provides functions organised into categories. Each organisation type 
 ### CERTIFICATION MANAGEMENT Tools (Central Authority Only)
 
 **ADD_CERTIFICATION**
-- Record new food safety certification
-- Select type based on region
-- Validates against regional requirements automatically
+- Record new food safety certification for any worker
+- Central Authority can attach certs from any region (workers may hold cross-regional certs)
+- Validates certification dates and data integrity
 
 **RENEW_CERTIFICATION**
 - Update expiring certification with new dates
@@ -208,15 +211,15 @@ The system provides functions organised into categories. Each organisation type 
 
 ### REPORTING & ANALYTICS Tools (Central Authority Only)
 
-**VIEW_AUDIT_LOG**: full audit trail, filterable by worker/org/date range
+**VIEW_AUDIT_LOG**: full audit trail, filterable by worker or organisation
 
-**GENERATE_COMPLIANCE_REPORT**: workers by status across regions, certification compliance %, export to PDF/CSV
+**GENERATE_COMPLIANCE_REPORT**: total and active worker counts, certifications expiring within 30 days
 
-**CHECK_EXPIRING_CERTS**: certifications expiring within 30/60/90 days, filterable by region or cert type
+**CHECK_EXPIRING_CERTS**: certifications expiring within a configurable number of days
 
-**CHECK_REGIONAL_COMPLIANCE**: compliance stats, worker distribution, cert types by region
+**CHECK_REGIONAL_COMPLIANCE**: total and active worker count for a given region, with worker listing
 
-**VIEW_ORGANISATION_ACTIVITY**: verification requests by org, usage patterns
+**VIEW_ORGANISATION_ACTIVITY**: audit log entries for a given organisation
 
 ### SEARCH & QUERY Tools (Central Authority Only)
 
@@ -226,13 +229,13 @@ The system provides functions organised into categories. Each organisation type 
 
 **BULK_STATUS_UPDATE**: update multiple workers at once (regulatory actions)
 
-**EXPORT_WORKER_DATA**: backup/reporting export, CSV or JSON, filterable
+**EXPORT_WORKER_DATA**: backup/reporting export, CSV or JSON, filterable by region
 
 ### NOTIFICATION Tools (Central Authority Only)
 
-**SEND_RENEWAL_REMINDER**: email/SMS for expiring certifications, customisable schedule (30, 14, 7 days). System can run these autonomously.
+**SEND_RENEWAL_REMINDER**: notification for expiring certifications, delivered via a NotificationPort (console adapter currently; swappable to email/SMS)
 
-**SEND_STATUS_NOTIFICATION**: notify on status changes, include reasons. Can trigger automatically on any status change. Potentially include appeal info (?)
+**SEND_STATUS_NOTIFICATION**: notify worker on status changes, delivered via NotificationPort
 
 
 ---
@@ -269,11 +272,11 @@ The system supports food safety certifications across 12 regions. Here's what's 
 |--------|-----------|-------------|----------|
 | US | Food Handler | ServSafe Manager | 2-5 yrs / 5 yrs |
 | UK | Level 2 | Level 3 | 3 yrs / 3 yrs |
-| Germany | Hygiene Schulung | Same | Lifetime |
+| Germany | Hygiene Schulung | -- | Lifetime |
 | Singapore | Level 1 | WSQ Course | 5 yrs |
-| Japan | Sanitation Mgr | Same | Lifetime |
-| Hong Kong | Basic Hygiene | Same | Lifetime |
-| S. Korea | Hygiene Ed | Same | 1 year |
+| Japan | Sanitation Mgr | -- | Lifetime |
+| Hong Kong | Basic Hygiene | -- | Lifetime |
+| S. Korea | Hygiene Ed | -- | 1 year |
 
 ### Work Authorisation by Region
 
@@ -309,74 +312,75 @@ Separate from certifications, the system also tracks whether a worker has the le
 
 ## System Capabilities
 
-### Workflow 1: Create US Worker with Certifications
+### Example Flow: Create UK Worker with Certifications
 
 ```
 1. User: Central Authority Portal
 2. Select: Create Worker ID
-3. Choose Region: United States
+3. Choose Region: United Kingdom
 4. Enter Details:
-   - Name: Maria Rodriguez
+   - Name: Finn Mertens
    - DOB: 1995-06-15
-   - Email: maria@email.com
-5. System shows required US certifications
-6. Add Food Handler Certificate:
-   - Type: Texas Food Handler
-   - Cert Number: TFH-2024-1234
+   - Email: finn@adventure.time
+5. System shows required UK certifications
+6. Add Level 2 Food Safety and Hygiene:
+   - Type: Level 2 Food Safety (CIEH)
+   - Cert Number: CIEH-2024-1234
    - Issue: 2024-01-15
-   - Expires: 2026-01-15
-7. Add ServSafe Manager:
-   - Cert Number: SM-2024-5678
+   - Expires: 2027-01-15
+7. Add Level 3 Food Safety - Supervising:
+   - Cert Number: HF-2024-5678
    - Issue: 2024-01-20
-   - Expires: 2029-01-20
+   - Expires: 2027-01-20
 8. System validates and creates worker
-9. Result: Worker ID WK-US-1 created
+9. Result: Worker ID WK-UK-1 created
 10. Audit log entry recorded
 ```
 
-### Workflow 2: Fine Dining Verifies Chef
+### Example Flow: Fine Dining Verifies Chef
 
 ```
 1. User: Fine Dining Service Portal
 2. Select: Verify with Certification History
-3. Enter Worker ID: WK-US-1
+3. Enter Worker ID: WK-UK-1
 4. System retrieves:
    - Worker status: ACTIVE
-   - Food Handler: Valid until 2026-01-15
-   - ServSafe Manager: Valid until 2029-01-20
+   - Level 2 Food Safety (CIEH): Valid until 2027-01-15
+   - Level 3 Food Safety - Supervising (Highfield): Valid until 2027-01-20
 5. Display certification history
 6. Result: APPROVED for head chef position
 ```
 
-### Workflow 3: Multi-Region Worker
+### Example Flow: Region-Aware Verification
 
 ```
-Worker: Sofia Martinez
-Worker ID: WK-SG-5
+Worker: Joanne Binith
+Worker ID: WK-UK-2
 
-Certifications:
-  United States:
-    ServSafe Manager: Valid until 2028-12-01
-  United Kingdom:
-    Level 3 Food Safety: Valid until 2027-09-20
-  Singapore:
-    WSQ Food Safety: Valid until 2029-03-15
+All certifications on record:
+  - UK Level 2 Food Safety: Valid until 2028-01-10
+  - UK Allergen Training: Valid until 2027-03-15
+  - US Food Handler: Valid until 2027-09-01
 
-System checks:
-  - Can work in US?         YES (has ServSafe)
-  - Can work in UK?         YES (has Level 3)
-  - Can work in Singapore?  YES (has WSQ)
-  - Can work in France?     NO (no Formation HACCP)
+Verification by UK Fine Dining (operating in UK):
+  Certifications considered:
+  - Level 2 Food Safety and Hygiene [VALID] (expires: 2028-01-10)
+  - Allergen Awareness Training [VALID] (expires: 2027-03-15)
+  (US Food Handler filtered out — not relevant to UK operations)
+
+Result: VALID — 2 certification(s) on record
 ```
 
 ---
 
-## Technology Stack
+## Tech Stack
 
-- **Language:** Java 17
+- **Language:** Java
+- **Presentation:** JLine
 - **Persistence:** JSON file (via Gson)
 - **Build:** Maven
-- **Testing:** JUnit 5 + Mockito
+- **Testing:** JUnit 5, Github for CI
+- **Version Control:** Github
 
 ---
 
@@ -391,7 +395,8 @@ System checks:
 
 **Certification rules:**
 - Certifications expire based on their regional validity periods
-- Workers should have appropriate certs for their operating region
+- Central Authority can attach any certification to any worker (workers may work across regions)
+- Verification is region-aware: consuming organisations only see certs relevant to their operating region (e.g., a UK restaurant sees UK and EU-wide certs, not US certs)
 - Right-to-work verification must meet regional timing requirements (UK: before start, US: within 3 days)
 - Temporary work authorisation requires reverification before expiry
 
@@ -402,29 +407,9 @@ System checks:
 
 **Data integrity:**
 - Worker and certification identifiers are unique
-- Foreign key relationships enforced in the database
+- Deleting a worker cascades to remove orphaned certifications
 - Timestamps track all changes
-
----
-
-## Video demo plan
-
-When demonstrating the system, I'll focus on these key tools:
-
-**Essential (Must Show):**
-1. CREATE_WORKER
-2. VERIFY_BASIC
-3. ADD_CERTIFICATION 
-4. VERIFY_WITH_CERT_HISTORY
-
-**If Time Allows:**
-5. CHECK_EXPIRING_CERTS
-6. GENERATE_COMPLIANCE_REPORT
-7. Multi-region worker creation
-
-**For Questions:**
-- Tool access control: how organisations get different tools
-- Regional requirements: how certification types vary by region
+- IOException in persistence propagates visibly rather than silently returning empty data
 
 ---
 

@@ -34,13 +34,13 @@ The ports-and-adapters part means the application layer never directly depends o
 
 ### Repository Pattern
 
-Data access is abstracted through interfaces in `application/port/out/`, with JSON file implementations in `infrastructure/adapter/persistence/`. A central DependencyInjection class wires the concrete implementations at startup.
+Data access is abstracted through interfaces in `application/port/out/`, with JSON file implementations in `infrastructure/adapter/persistence/`. A central ApplicationFactory class wires the concrete implementations at startup.
 
 The reason for this is mostly testability. domain and application tests don't need the real file. It also means if I ever wanted to swap JSON for a proper database later, the change would be isolated to infrastructure and mitigate shotgun surgery.
 
 ### Dependency Injection
 
-Constructor injection throughout. One DependencyInjection class at startup creates everything and passes dependencies down.
+Constructor injection throughout. One ApplicationFactory class at startup creates everything and passes dependencies down.
 
 ---
 
@@ -90,11 +90,11 @@ Each organisation gets a specific set of tools (use cases) based on what they're
 
 | Tool Name | Purpose |
 |-----------|---------|
-| VIEW_AUDIT_LOG | View system audit trail, filterable by worker/org/date |
-| GENERATE_COMPLIANCE_REPORT | Compliance reports by region |
-| CHECK_EXPIRING_CERTS | Find certifications expiring within timeframe |
-| CHECK_REGIONAL_COMPLIANCE | Regional compliance statistics |
-| VIEW_ORGANISATION_ACTIVITY | Track verification requests by organisation |
+| VIEW_AUDIT_LOG | View system audit trail, filterable by worker or organisation |
+| GENERATE_COMPLIANCE_REPORT | Total/active worker counts, certifications expiring within 30 days |
+| CHECK_EXPIRING_CERTS | Find certifications expiring within configurable days |
+| CHECK_REGIONAL_COMPLIANCE | Total and active worker count for a given region |
+| VIEW_ORGANISATION_ACTIVITY | Audit log entries for a given organisation |
 
 #### SEARCH & QUERY Tools (Central Authority)
 
@@ -148,7 +148,7 @@ The presentation layer only shows menu options for tools the org actually has, s
 
 Represents a food service professional. Main fields:
 
-- Unique identifier with region prefix (e.g., `WK-US-1`)
+- Unique identifier with region prefix (e.g., `WK-UK-1`)
 - Full legal name, date of birth (immutable after creation)
 - Email, operating region (mutable by central authority)
 - Current status (ACTIVE / SUSPENDED / REVOKED)
@@ -283,6 +283,84 @@ Food service is genuinely global, and I wanted to show the system can handle com
 
 ---
 
+## Design Patterns
+
+### Builder — `VerificationResult`
+
+`VerificationResult` uses a fluent Builder to construct immutable result objects with multiple optional fields (certifications, message, status). This avoids a telescoping constructor and makes construction self-documenting:
+
+```java
+VerificationResult result = VerificationResult.builder("WK-UK-1")
+    .valid(true)
+    .status(WorkerStatus.ACTIVE)
+    .message("Worker is active and valid")
+    .certifications(certList)
+    .build();
+```
+
+The private constructor accepts only a `Builder`, guaranteeing all instances are immutable once built.
+
+### Factory Method — `OrganisationProfile.forType()`
+
+A static factory method encapsulates the complex permission-mapping logic. The constructor is private — all profiles must be created through `forType()`, which returns a correctly-configured immutable profile for the given organisation type:
+
+```java
+OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.FINE_DINING);
+// Returns a profile with exactly the 5 tools Fine Dining is allowed
+```
+
+This centralises the mapping in one place and prevents misconfigured profiles from being constructed.
+
+### Singleton — `GsonFactory`
+
+The configured `Gson` instance is expensive to construct (adapter registration, builder configuration) but thread-safe and stateless once built. `GsonFactory` uses eager initialisation in a `static final` field with a private constructor:
+
+```java
+private static final Gson INSTANCE = new GsonBuilder()
+        .setPrettyPrinting()
+        .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+        .create();
+
+private GsonFactory() {}
+
+public static Gson create() { return INSTANCE; }
+```
+
+All four repositories share this single instance rather than constructing their own.
+
+### Adapter — `GsonFactory` type adapters
+
+Gson does not natively handle Java 8+ `LocalDate`/`LocalDateTime` types. Custom `LocalDateAdapter` and `LocalDateTimeAdapter` inner classes bridge the incompatibility between Gson's serialisation framework and the domain model's temporal types. This is a structural adapter — converting one interface to another without modifying either side:
+
+```java
+private static class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
+    public JsonElement serialize(LocalDate date, Type type, JsonSerializationContext ctx) {
+        return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+    }
+    public LocalDate deserialize(JsonElement json, Type type, JsonDeserializationContext ctx) {
+        return LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+}
+```
+
+### Observer — `WorkerLifecycleNotifier`
+
+Use cases broadcast lifecycle events (creation, status change, deletion) via a `WorkerLifecycleNotifier`. Registered `WorkerLifecycleListener` implementations react independently without the use cases knowing who is listening:
+
+```java
+// Interface with default no-ops for events the listener doesn't care about
+public interface WorkerLifecycleListener {
+    void onStatusChanged(Worker worker, WorkerStatus previous, WorkerStatus newStatus);
+    default void onWorkerCreated(Worker worker) {}
+    default void onWorkerDeleted(String workerId) {}
+}
+```
+
+`ConsoleNotificationListener` is the concrete observer that prints notifications. Adding new reactions (email, webhooks) requires only a new listener implementation and a single `addListener()` call in DI — no existing code changes.
+
+---
+
 ## Security & Authorisation
 
 ### Access Control
@@ -358,8 +436,8 @@ Validation happens at every level to check things like correct data types, expir
 I'm keeping this fairly simple. All exceptions live in `domain/exception/` and extend a base `DomainException`:
 
 - **InvalidOperationException**: business rule violations (e.g., reactivating a revoked worker)
-- **WorkerNotFoundException**: worker ID not found in repository
-- **CertificationExpiredException**: operations on expired certifications
+- **EntityNotFoundException**: base class for entity lookup failures
+- **WorkerNotFoundException**: worker ID not found in repository (extends EntityNotFoundException)
 - **ValidationException**: input validation failures (blank name, invalid email, future DOB)
 - **UnauthorisedAccessException**: organisation trying to access a tool outside its profile
 
@@ -371,9 +449,7 @@ Exceptions propagate upward — use cases throw, presentation catches and shows 
 
 ### Structure
 
-Tests mirror the source packages. Domain tests don't need any mocking. Application tests mock the repositories (that's the whole point of the port interfaces). Infrastructure tests use a separate test JSON file. Integration tests wire everything together with a real data file.
-
-I'm planning to use test fixture builders for creating realistic test data, and use a fresh temp file between test runs so they don't depend on each other.
+Tests mirror the source packages. Domain tests don't need any mocking. Application tests use hand-written fakes for the repositories (that's the whole point of the port interfaces). Integration tests wire everything together with a real JSON file in a temporary directory, cleaned up after each run.
 
 Haven't decided yet whether presentation tests are worth the effort as testing console I/O can be very subjective. I may just cover these manually, as presentation tends to be fairly visible.
 

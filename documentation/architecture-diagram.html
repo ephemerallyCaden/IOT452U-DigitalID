@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Service Digital ID - Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #d4d4d4;
+            padding: 48px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 40px;
+        }
+
+        .architecture {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .layer {
+            padding: 20px 24px;
+            border-left: 3px solid #4a7aab;
+            background: #222;
+        }
+
+        .layer-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #4a7aab;
+            margin-bottom: 6px;
+        }
+
+        .layer-desc {
+            font-size: 0.82rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .layer-detail {
+            font-size: 0.72rem;
+            color: #666;
+            margin-top: 5px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        .arrow-section {
+            display: flex;
+            align-items: center;
+            padding: 6px 0 6px 28px;
+        }
+
+        .arrow-text {
+            font-size: 0.6rem;
+            color: #555;
+            letter-spacing: 0.3px;
+        }
+
+        .arrow-text::before {
+            content: "↓ ";
+        }
+
+        .dependency-note {
+            margin-top: 24px;
+            padding-left: 28px;
+            font-size: 0.7rem;
+            color: #555;
+        }
+
+        /* Matrix */
+        .section-title {
+            margin: 56px 0 24px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .matrix-container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .matrix {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.73rem;
+        }
+
+        .matrix th {
+            padding: 8px 14px;
+            text-align: center;
+            font-weight: 600;
+            color: #888;
+            border-bottom: 1px solid #333;
+        }
+
+        .matrix th:first-child {
+            text-align: left;
+            min-width: 200px;
+        }
+
+        .matrix td {
+            padding: 6px 14px;
+            text-align: center;
+            border-bottom: 1px solid #262626;
+        }
+
+        .matrix td:first-child {
+            text-align: left;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.68rem;
+            color: #bbb;
+        }
+
+        .matrix tr:hover {
+            background: #262626;
+        }
+
+        .dot-yes {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4a7aab;
+            display: inline-block;
+        }
+
+        .dot-no {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            display: inline-block;
+        }
+
+        .matrix .category-row td {
+            padding-top: 14px;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: none;
+        }
+
+        .total-row td {
+            padding-top: 12px;
+            font-weight: 600;
+            color: #eee;
+            border-top: 1px solid #444;
+        }
+
+        .legend {
+            margin-top: 14px;
+            font-size: 0.65rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="architecture">
+
+        <h1>Food Service Digital ID</h1>
+        <p class="subtitle">Layered Architecture with Ports & Adapters</p>
+
+        <!-- Presentation Layer -->
+        <div class="layer">
+            <div class="layer-label">Presentation</div>
+            <div class="layer-desc">JLine terminal UI with arrow-key navigation. One console per organisation type, showing only their permitted tools.</div>
+            <div class="layer-detail">7 org types &middot; TerminalMenu (raw mode) &middot; ConsoleApplication (router)</div>
+        </div>
+
+        <div class="arrow-section">
+            <span class="arrow-text">request objects</span>
+        </div>
+
+        <!-- Application Layer -->
+        <div class="layer">
+            <div class="layer-label">Application</div>
+            <div class="layer-desc">24 use cases orchestrating domain logic. UseCaseRegistry enforces tool-based access control per organisation profile.</div>
+            <div class="layer-detail">UseCase&lt;Req, Res&gt; interface &middot; AuditService &middot; inbound/outbound port interfaces</div>
+        </div>
+
+        <div class="arrow-section">
+            <span class="arrow-text">domain services &amp; entities</span>
+        </div>
+
+        <!-- Domain Layer -->
+        <div class="layer">
+            <div class="layer-label">Domain</div>
+            <div class="layer-desc">Pure business logic. Entities with behaviour, validation services, and 12-region certification rules. No framework dependencies.</div>
+            <div class="layer-detail">Worker &middot; Certification &middot; WorkAuthorisation &middot; 31 CertificationTypes &middot; 12 Regions</div>
+        </div>
+
+        <div class="arrow-section">
+            <span class="arrow-text">implements port interfaces</span>
+        </div>
+
+        <!-- Infrastructure Layer -->
+        <div class="layer">
+            <div class="layer-label">Infrastructure</div>
+            <div class="layer-desc">JSON file persistence via Gson. Each entity type has its own file. GsonFactory handles date serialisation.</div>
+            <div class="layer-detail">workers.json &middot; certifications.json &middot; audit_log.json &middot; work_authorisations.json &middot; sequence.json</div>
+        </div>
+
+        <p class="dependency-note">Dependencies point inward — outer layers depend on inner layers, never the reverse.</p>
+
+    </div>
+
+    <!-- Tool Access Matrix -->
+    <div class="matrix-container">
+        <h2 class="section-title">Organisation Tool Access</h2>
+
+        <table class="matrix">
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>CA</th>
+                    <th>FD</th>
+                    <th>DS</th>
+                    <th>SV</th>
+                    <th>FS</th>
+                    <th>FF</th>
+                    <th>CS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="category-row"><td colspan="8">Core</td></tr>
+                <tr><td>VIEW_WORKER</td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td></tr>
+                <tr><td>VERIFY_BASIC</td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td></tr>
+                <tr><td>VERIFY_WORK_AUTHORISATION</td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Enhanced Verification</td></tr>
+                <tr><td>VERIFY_WITH_CERT_HISTORY</td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>VERIFY_WITH_CONDITIONS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>VERIFY_WITH_PERMITS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>VERIFY_WITH_ATTRIBUTES</td><td><span class="dot-yes"></span></td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Identity Management</td></tr>
+                <tr><td>CREATE_WORKER</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>UPDATE_WORKER</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>CHANGE_STATUS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>DELETE_WORKER</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Certification</td></tr>
+                <tr><td>ADD_CERTIFICATION</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>RENEW_CERTIFICATION</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>UPDATE_CERTIFICATION_STATUS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Reporting</td></tr>
+                <tr><td>VIEW_AUDIT_LOG</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>GENERATE_COMPLIANCE_REPORT</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>CHECK_EXPIRING_CERTS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>CHECK_REGIONAL_COMPLIANCE</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>VIEW_ORGANISATION_ACTIVITY</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Search</td></tr>
+                <tr><td>SEARCH_WORKERS</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Batch Operations</td></tr>
+                <tr><td>BULK_STATUS_UPDATE</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>EXPORT_WORKER_DATA</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="category-row"><td colspan="8">Notification</td></tr>
+                <tr><td>SEND_RENEWAL_REMINDER</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr><td>SEND_STATUS_NOTIFICATION</td><td><span class="dot-yes"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td><td><span class="dot-no"></span></td></tr>
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td>24</td>
+                    <td>5</td>
+                    <td>4</td>
+                    <td>4</td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="legend">
+            CA = Central Authority &nbsp;&middot;&nbsp; FD = Fine Dining &nbsp;&middot;&nbsp; DS = Delivery Service &nbsp;&middot;&nbsp; SV = Street Vendor &nbsp;&middot;&nbsp; FS = Financial Service &nbsp;&middot;&nbsp; FF = Fast Food &nbsp;&middot;&nbsp; CS = Coffee Shop
+        </p>
+    </div>
+
+</body>
+</html>
