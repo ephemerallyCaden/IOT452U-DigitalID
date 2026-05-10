@@ -13,6 +13,7 @@ import com.digitalid.application.usecase.*;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationProfile;
 import com.digitalid.domain.model.OrganisationType;
+import com.digitalid.domain.model.Region;
 import com.digitalid.domain.model.ToolType;
 import com.digitalid.domain.service.CertificationValidationService;
 import com.digitalid.domain.service.VerificationService;
@@ -103,13 +104,13 @@ public class DependencyInjection {
 
         // Enhanced Verification
         registry.register(ToolType.VERIFY_WITH_CERT_HISTORY,
-                new VerifyWithCertHistoryUseCase(context, verificationService, workerRepository, certificationRepository, auditService));
+                new VerifyWithCertHistoryUseCase(context, verificationService, certificationValidationService, workerRepository, certificationRepository, auditService));
         registry.register(ToolType.VERIFY_WITH_CONDITIONS,
-                new VerifyWithConditionsUseCase(context, verificationService, workerRepository, certificationRepository, auditService));
+                new VerifyWithConditionsUseCase(context, verificationService, certificationValidationService, workerRepository, certificationRepository, auditService));
         registry.register(ToolType.VERIFY_WITH_PERMITS,
-                new VerifyWithPermitsUseCase(context, verificationService, workerRepository, certificationRepository, auditService));
+                new VerifyWithPermitsUseCase(context, verificationService, certificationValidationService, workerRepository, certificationRepository, auditService));
         registry.register(ToolType.VERIFY_WITH_ATTRIBUTES,
-                new VerifyWithAttributesUseCase(context, verificationService, workerRepository, certificationRepository, auditService));
+                new VerifyWithAttributesUseCase(context, verificationService, certificationValidationService, workerRepository, certificationRepository, auditService));
 
         // Reporting
         registry.register(ToolType.VIEW_AUDIT_LOG,
@@ -144,9 +145,9 @@ public class DependencyInjection {
         return registry;
     }
 
-    public OrganisationContext createContext(String orgId, OrganisationType type, String orgName) {
+    public OrganisationContext createContext(String orgId, OrganisationType type, String orgName, Region operatingRegion) {
         OrganisationProfile profile = OrganisationProfile.forType(type);
-        return new OrganisationContext(orgId, type, orgName, profile.getAllowedTools());
+        return new OrganisationContext(orgId, type, orgName, operatingRegion, profile.getAllowedTools());
     }
 
     public WorkerRepository getWorkerRepository() { return workerRepository; }

@@ -9,15 +9,17 @@ import com.digitalid.domain.model.Certification;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.VerificationResult;
 import com.digitalid.domain.model.Worker;
+import com.digitalid.domain.service.CertificationValidationService;
 import com.digitalid.domain.service.VerificationService;
 
 
 public class VerifyWithConditionsUseCase extends AbstractEnhancedVerificationUseCase {
 
     public VerifyWithConditionsUseCase(OrganisationContext org, VerificationService verificationService,
+                                       CertificationValidationService certValidationService,
                                        WorkerRepository workerRepository, CertificationRepository certRepository,
                                        AuditService logger) {
-        super(org, verificationService, workerRepository, certRepository, logger);
+        super(org, verificationService, certValidationService, workerRepository, certRepository, logger);
     }
 
     @Override

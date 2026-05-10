@@ -43,7 +43,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void fineDiningCannotCreateWorkers() {
-        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet");
+        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet", Region.FRANCE);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         assertThrows(UnauthorisedAccessException.class,
@@ -52,7 +52,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void fineDiningCannotDeleteWorkers() {
-        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet");
+        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet", Region.FRANCE);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         assertThrows(UnauthorisedAccessException.class,
@@ -61,7 +61,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void deliveryServiceCannotAccessCertHistory() {
-        OrganisationContext context = di.createContext("ORG-DS", OrganisationType.DELIVERY_SERVICE, "QuickBite");
+        OrganisationContext context = di.createContext("ORG-DS", OrganisationType.DELIVERY_SERVICE, "QuickBite", Region.UNITED_KINGDOM);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         assertThrows(UnauthorisedAccessException.class,
@@ -70,7 +70,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void streetVendorCannotAccessBulkOperations() {
-        OrganisationContext context = di.createContext("ORG-SV", OrganisationType.STREET_VENDOR, "Urban Eats");
+        OrganisationContext context = di.createContext("ORG-SV", OrganisationType.STREET_VENDOR, "Urban Eats", Region.UNITED_STATES);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         assertThrows(UnauthorisedAccessException.class,
@@ -79,7 +79,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void centralAuthorityCanAccessEverything() {
-        OrganisationContext context = di.createContext("ORG-CA", OrganisationType.CENTRAL_AUTHORITY, "Central Authority");
+        OrganisationContext context = di.createContext("ORG-CA", OrganisationType.CENTRAL_AUTHORITY, "Central Authority", null);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         // Should not throw for any tool
@@ -92,7 +92,7 @@ class AccessControlIntegrationTest {
 
     @Test
     void fineDiningCanAccessAllowedVerificationTools() {
-        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet");
+        OrganisationContext context = di.createContext("ORG-FD", OrganisationType.FINE_DINING, "Le Gourmet", Region.FRANCE);
         UseCaseRegistry registry = di.buildRegistry(context);
 
         // Fine dining has: VIEW_WORKER, VERIFY_BASIC, VERIFY_WITH_CERT_HISTORY, VERIFY_WITH_ATTRIBUTES

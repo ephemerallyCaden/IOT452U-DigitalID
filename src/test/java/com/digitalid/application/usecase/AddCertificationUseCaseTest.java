@@ -64,13 +64,15 @@ class AddCertificationUseCaseTest {
     }
 
     @Test
-    void rejectsCertTypeMismatchingRegion() {
-        // UK cert for a US worker should fail
+    void centralAuthorityCanAddAnyCertRegardlessOfWorkerRegion() {
+        // UK cert for a US worker is allowed — Central Authority operates globally
         AddCertificationRequest request = new AddCertificationRequest(
                 "WK-US-1", CertificationType.UK_LEVEL_2_FOOD_SAFETY, "CIEH",
                 "L2-00001", LocalDate.of(2025, 1, 1), LocalDate.of(2028, 1, 1));
 
-        assertThrows(ValidationException.class, () -> useCase.execute(request));
+        Certification result = useCase.execute(request);
+        assertNotNull(result);
+        assertEquals(CertificationType.UK_LEVEL_2_FOOD_SAFETY, result.getType());
     }
 
     @Test
@@ -97,7 +99,7 @@ class AddCertificationUseCaseTest {
     private OrganisationContext makeContext() {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.CENTRAL_AUTHORITY);
         return new OrganisationContext("ORG-TEST", OrganisationType.CENTRAL_AUTHORITY,
-                "Test Authority", profile.getAllowedTools());
+                "Test Authority", null, profile.getAllowedTools());
     }
 
     // --- Fake ---

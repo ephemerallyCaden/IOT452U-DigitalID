@@ -9,7 +9,6 @@ import com.digitalid.application.request.AddCertificationRequest;
 import com.digitalid.application.service.AuditService;
 import com.digitalid.domain.model.Certification;
 import com.digitalid.domain.model.OrganisationContext;
-import com.digitalid.domain.model.Worker;
 import com.digitalid.domain.service.CertificationValidationService;
 
 
@@ -40,10 +39,7 @@ public class AddCertificationUseCase implements UseCase<AddCertificationRequest,
         String reqWorkerId = request.getWorkerId();
 
         // Check worker exists
-        Worker worker = workerRepository.findById(reqWorkerId);
-
-        // Validate cert type matches worker region
-        validator.validateCertificationForRegion(request.getCertificationType(), worker.getRegion());
+        workerRepository.findById(reqWorkerId);
 
         // Create the certification
         String certId = "CERT-" + UUID.randomUUID().toString().substring(0, 8);

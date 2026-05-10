@@ -5,6 +5,7 @@ import com.digitalid.domain.exception.UnauthorisedAccessException;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationType;
 import com.digitalid.domain.model.OrganisationProfile;
+import com.digitalid.domain.model.Region;
 import com.digitalid.domain.model.ToolType;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -78,6 +79,7 @@ class UseCaseRegistryTest {
 
     private OrganisationContext makeContext(OrganisationType type) {
         OrganisationProfile profile = OrganisationProfile.forType(type);
-        return new OrganisationContext("ORG-001", type, "Test Org", profile.getAllowedTools());
+        Region region = (type == OrganisationType.CENTRAL_AUTHORITY) ? null : Region.UNITED_KINGDOM;
+        return new OrganisationContext("ORG-001", type, "Test Org", region, profile.getAllowedTools());
     }
 }

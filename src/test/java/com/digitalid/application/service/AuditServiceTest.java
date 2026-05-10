@@ -55,7 +55,7 @@ class AuditServiceTest {
     private OrganisationContext makeContext() {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.CENTRAL_AUTHORITY);
         return new OrganisationContext("ORG-001", OrganisationType.CENTRAL_AUTHORITY,
-                "Central Authority", profile.getAllowedTools());
+                "Central Authority", null, profile.getAllowedTools());
     }
 
     // Simple fake implementation for testing

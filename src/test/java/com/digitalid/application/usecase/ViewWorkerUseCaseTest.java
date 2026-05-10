@@ -62,6 +62,6 @@ class ViewWorkerUseCaseTest {
     private OrganisationContext makeContext() {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.FINE_DINING);
         return new OrganisationContext("ORG-RESTAURANT", OrganisationType.FINE_DINING,
-                "Test Restaurant", profile.getAllowedTools());
+                "Test Restaurant", Region.UNITED_STATES, profile.getAllowedTools());
     }
 }

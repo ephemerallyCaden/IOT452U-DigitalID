@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.digitalid.application.registry.UseCaseRegistry;
 import com.digitalid.domain.model.OrganisationContext;
 import com.digitalid.domain.model.OrganisationType;
+import com.digitalid.domain.model.Region;
 import com.digitalid.infrastructure.config.DependencyInjection;
 
 
@@ -48,6 +49,8 @@ public class ConsoleApplication {
         OrganisationType selectedType = types[selected];
 
         String orgName;
+        Region operatingRegion = null;
+
         if (selectedType == OrganisationType.CENTRAL_AUTHORITY) {
             orgName = "Central Authority";
         } else {
@@ -55,10 +58,24 @@ public class ConsoleApplication {
             if (orgName.isEmpty()) {
                 orgName = "[UNNAMED] " + selectedType.getDisplayName() + " Org";
             }
+            operatingRegion = selectRegion();
         }
 
         String orgId = "ORG-" + System.currentTimeMillis();
-        return di.createContext(orgId, selectedType, orgName);
+        return di.createContext(orgId, selectedType, orgName, operatingRegion);
+    }
+
+    private Region selectRegion() {
+        Region[] regions = Region.values();
+        List<String> regionLabels = Arrays.stream(regions)
+                .map(Region::getDisplayName)
+                .collect(Collectors.toList());
+
+        int selected = terminal.select("Select operating region", regionLabels);
+        if (selected == -1) {
+            return Region.UNITED_KINGDOM; // default fallback
+        }
+        return regions[selected];
     }
 
     private ConsoleUI createConsole(OrganisationContext context, UseCaseRegistry registry) {

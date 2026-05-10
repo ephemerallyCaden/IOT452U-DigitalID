@@ -21,17 +21,16 @@ public class CertificationValidationService {
         }
     }
 
-    public void validateCertificationForRegion(CertificationType type, Region workerRegion) {
-        // cert type should match the worker's region, or be a general EU cert for EU countries
+    public boolean isCertRelevantForRegion(CertificationType type, Region targetRegion) {
+        if (targetRegion == null) {
+            return true; // global authority — all certs are relevant
+        }
         Region certRegion = type.getHomeRegion();
-        if (certRegion == workerRegion) {
-            return; // direct match
+        if (certRegion == targetRegion) {
+            return true;
         }
-        if (certRegion == Region.EU_GENERAL && isEuCountry(workerRegion)) {
-            return; // EU-wide cert is valid in EU member states
-        }
-        throw new ValidationException(
-                "Certification " + type.getDisplayName() + " is not valid for region " + workerRegion.getDisplayName());
+        // EU-wide certs are valid in EU member states
+        return certRegion == Region.EU_GENERAL && isEuCountry(targetRegion);
     }
 
     public void validateRenewal(Certification existing) {

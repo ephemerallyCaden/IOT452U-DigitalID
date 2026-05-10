@@ -23,22 +23,23 @@ class CertificationValidationServiceTest {
     }
 
     @Test
-    void certMustMatchWorkerRegion() {
-        // UK cert for UK worker
-        assertDoesNotThrow(() ->
-                service.validateCertificationForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_KINGDOM));
-        // UK cert for US worker
-        assertThrows(ValidationException.class, () ->
-                service.validateCertificationForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_STATES));
+    void certIsRelevantForMatchingRegion() {
+        assertTrue(service.isCertRelevantForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_KINGDOM));
+        assertFalse(service.isCertRelevantForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, Region.UNITED_STATES));
     }
 
     @Test
-    void euHaccpAcceptedInEuCountries() {
-        assertDoesNotThrow(() ->
-                service.validateCertificationForRegion(CertificationType.EU_HACCP, Region.GERMANY));
-        // but not outside the EU
-        assertThrows(ValidationException.class, () ->
-                service.validateCertificationForRegion(CertificationType.EU_HACCP, Region.SINGAPORE));
+    void euCertIsRelevantInEuMemberStates() {
+        assertTrue(service.isCertRelevantForRegion(CertificationType.EU_HACCP, Region.GERMANY));
+        assertTrue(service.isCertRelevantForRegion(CertificationType.EU_HACCP, Region.FRANCE));
+        assertFalse(service.isCertRelevantForRegion(CertificationType.EU_HACCP, Region.SINGAPORE));
+    }
+
+    @Test
+    void allCertsRelevantForNullRegion() {
+        // Central Authority (null region) sees all certs as relevant
+        assertTrue(service.isCertRelevantForRegion(CertificationType.UK_LEVEL_2_FOOD_SAFETY, null));
+        assertTrue(service.isCertRelevantForRegion(CertificationType.US_FOOD_HANDLER, null));
     }
 
     @Test

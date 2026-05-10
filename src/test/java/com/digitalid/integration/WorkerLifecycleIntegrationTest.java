@@ -36,7 +36,7 @@ class WorkerLifecycleIntegrationTest {
     void setUp() throws IOException {
         tempDir = Files.createTempDirectory("digitalid-test-");
         di = new DependencyInjection(tempDir.toString());
-        context = di.createContext("ORG-INTEG", OrganisationType.CENTRAL_AUTHORITY, "Integration Test Authority");
+        context = di.createContext("ORG-INTEG", OrganisationType.CENTRAL_AUTHORITY, "Integration Test Authority", null);
         registry = di.buildRegistry(context);
     }
 

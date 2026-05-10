@@ -87,6 +87,6 @@ class ChangeStatusUseCaseTest {
     private OrganisationContext makeContext() {
         OrganisationProfile profile = OrganisationProfile.forType(OrganisationType.CENTRAL_AUTHORITY);
         return new OrganisationContext("ORG-TEST", OrganisationType.CENTRAL_AUTHORITY,
-                "Test Authority", profile.getAllowedTools());
+                "Test Authority", null, profile.getAllowedTools());
     }
 }
