@@ -17,12 +17,23 @@ public class VerificationService {
     }
 
     public VerificationResult verifyWithCertHistory(Worker worker, List<Certification> allCerts) {
-        boolean valid = worker.isActive();
+        boolean active = worker.isActive();
+        long validCount = allCerts.stream().filter(Certification::isValid).count();
+        boolean valid = active && validCount > 0;
+
+        String message;
+        if (!active) {
+            message = "Worker is not active";
+        } else if (validCount == 0) {
+            message = "No valid certifications found for this region";
+        } else {
+            message = "Verified with " + validCount + " valid certification(s) on record";
+        }
+
         return VerificationResult.builder(worker.getWorkerId())
                 .valid(valid)
                 .status(worker.getStatus())
-                .message(valid ? "Verified with " + allCerts.size() + " certification(s) on record"
-                        : "Worker is not active")
+                .message(message)
                 .certifications(allCerts)
                 .build();
     }
