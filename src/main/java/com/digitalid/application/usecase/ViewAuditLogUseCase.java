@@ -11,11 +11,9 @@ import com.digitalid.domain.model.OrganisationContext;
 
 public class ViewAuditLogUseCase implements UseCase<AuditLogRequest, List<AuditLogEntry>> {
 
-    private final OrganisationContext org;
     private final AuditLogRepository auditLogRepository;
 
     public ViewAuditLogUseCase (OrganisationContext org, AuditLogRepository auditLogRepository) {
-        this.org = org;
         this.auditLogRepository = auditLogRepository;
     }
 
